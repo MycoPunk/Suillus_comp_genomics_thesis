@@ -1,0 +1,13 @@
+#!/bin/bash -l 
+#PBS -l walltime=10:00:00,mem=62gb,nodes=2:ppn=20
+#PBS -m abe 
+#PBS -M llofgren@umn.edu
+
+cd /home/kennedyp/llofgren/COMP/ortho_finder
+module load orthofinder
+
+cp diamond ~/bin
+export PATH=$PATH:~/bin/
+
+#where Suillus_Proteins is a folder containing protein .fasta files (one file per species)
+OrthoFinder-2.2.7/orthofinder -f Suillus_Proteins -S diamond
