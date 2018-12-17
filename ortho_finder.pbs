@@ -1,3 +1,5 @@
+###this runs a dendroBLAST alignment and constructs a tree using STAG (very fast. note- branch support values are inately lower for STAG- see STAG paper) 
+
 #!/bin/bash -l 
 #PBS -l walltime=10:00:00,mem=62gb,nodes=2:ppn=20
 #PBS -m abe 
@@ -11,3 +13,36 @@ export PATH=$PATH:~/bin/
 
 #where Suillus_Proteins is a folder containing protein .fasta files (one file per species)
 OrthoFinder-2.2.7/orthofinder -f Suillus_Proteins -S diamond
+
+
+
+
+###to run a more traditional multiple sequence alignment tree, built on contatonated single-copy proteins 
+###first you have to change the configure.json file in orthofinder to set it for bootstraping: raxml relevent line changed to:
+
+ "raxml":{ 
+    "program_type": "tree",
+    "cmd_line": "raxmlHPC-AVX -m PROTGAMMALG -p 12345 -s INPUT -n IDENTIFIER -w PATH -f a -x 12345 -# 100 > /dev/null",
+    "ouput_filename": "PATH/RAxML_bestTree.IDENTIFIER"
+    },
+    
+#Then run a modified .pbs file containing the following, where Suillus_Proteins is a folder containing protein .fasta files (one file per species)
+#!/bin/bash -l 
+#PBS -l walltime=6:00:00,mem=62gb,nodes=4:ppn=24
+#PBS -m abe 
+#PBS -M llofgren@umn.edu
+
+cd /home/kennedyp/llofgren/COMP/ortho_finder
+module load orthofinder
+module load python
+module load fastme
+module load mafft
+module load fasttree
+module load raxml
+
+cp diamond ~/bin
+export PATH=$PATH:~/bin/
+
+OrthoFinder-2.2.7/orthofinder -f Suillus_Proteins -S diamond -t 24 -a 20 -M msa -T raxml
+    
+    
