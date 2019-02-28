@@ -1,0 +1,102 @@
+#set directory
+setwd("~/Desktop/Chapter 3/ASR")
+library(phytools)
+library(ape)
+
+#load tree wih branch lengths generate with STAG
+state_df<- read.csv("Suillus_trait_states.csv")
+
+#read in tree
+phy<- as.character(state_df[1,6])
+phy<- read.tree(text = phy)
+
+plot.phylo(phy)
+
+#read in the data
+host_state_df <- data.frame(taxa=state_df$X, host_state=(state_df[,5]))
+
+x2<- host_state_df[,2] 
+x3<-setNames(host_state_df[,2],host_state_df[,1])
+
+
+#need to make a simmap to connect chr states to tips
+phy2<-make.simmap(phy, x3)
+
+#link the host states 
+states<-getStates(phy2,"tips")
+states
+
+#this is your tree
+plotTree(phy2,type="phylogram",fsize=0.8,ftype="i")
+
+#track states no coloring the nodes
+cols<-setNames(palette()[1:length(unique(states))],sort(unique(states)))
+tiplabels(pie=to.matrix(states,sort(unique(states))),piecol=cols,cex=0.3)
+add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
+                  y=-max(nodeHeights(phy2)),fsize=0.8)
+
+
+#now calculate probability of ancesteral state
+fitER<-ace(states,phy2,model="ER",type="discrete")
+fitER
+plotTree(phy2,type="phylogram",fsize=0.8,ftype="i")
+nodelabels(node=1:tree$Nnode+Ntip(phy2),
+           pie=fitER$lik.anc,piecol=cols,cex=0.5)
+tiplabels(pie=to.matrix(states,sort(unique(states))),piecol=cols,cex=0.3)
+add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
+                  y=-max(nodeHeights(phy2)),fsize=0.8)
+
+
+
+
+#the above but using an MCMC approach to sample character histories from their posterior probability distribution
+
+# simulate single stochastic character map using empirical Bayes method
+mtree<-make.simmap(phy2,states,model="ER")
+mtree
+plot(mtree,type="phylogram",fsize=0.8,ftype="i")
+add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
+                  y=-max(nodeHeights(phy2)),fsize=0.8)
+
+
+#Note- this dosent really mean anything, we need to look at a whole population of these mappings
+mtrees<-make.simmap(phy2,states,model="ER",nsim=100)
+mtrees
+
+par(mfrow=c(10,10))
+null<-sapply(mtrees,plot,colors=cols,lwd=1,ftype="off")
+
+#yuck. lets turn that into stats
+#this is the proportion of time spent in each state, and the posterior probabilities that each internal node is in each state, under the model.
+pd<-summary(mtrees,plot=FALSE)
+pd
+
+
+
+data(anoletree)
+## this is just to pull out the tip states from the
+## data object - normally we would read this from file
+x<-getStates(anoletree,"tips")
+tree<-anoletree
+rm(anoletree)
+tree
+x
+plotTree(tree,type="fan",fsize=0.8,ftype="i")
+cols<-setNames(palette()[1:length(unique(x))],sort(unique(x)))
+tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
+add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
+                  y=-max(nodeHeights(tree)),fsize=0.8)
+
+fitER<-ace(x,tree,model="ER",type="discrete")
+fitER
+plotTree(tree,type="fan",fsize=0.8,ftype="i")
+nodelabels(node=1:tree$Nnode+Ntip(tree),
+           pie=fitER$lik.anc,piecol=cols,cex=0.5)
+tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
+add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
+                  y=-max(nodeHeights(tree)),fsize=0.8)
+
+
+mtree<-make.simmap(tree,x,model="ER")
+mtree
+plot(mtree,cols,type="fan",fsize=0.8,ftype="i")
