@@ -1,8 +1,49 @@
-#parse SSP's
+##this script gives code and instructions for obtaining and parsing SSP's from aa protein files. 
+##in short:
+##aa were procured from JGI Mycocosm, 
+##SignalP was run on the command line
+##tmhmm on the "mature sequence" output form Signal P also on the command line
+##tmhmm outoput was procesed in R using the following scripts 
+##aa files from tmhmm results were run in EffectorP using the online interface
+##results from EffectorP were analysed in R using the following scripts
+
+
+######
+
+#signalP is used to identify proteins with secretion signal peptides
+##to run signalP:
+#cd /home/kennedyp/llofgren/COMP/SignalP
+#module load signalp4
+
+##note, the -m tag is what then gets fed into TMHMM. This gives you fasta fiels for the peptides that have SP's, 
+##but removes the SP itself from the peptide. This is a good thing, because TMHMM produces false positives when it encounters transmembrane helix's
+
+#signalp -t euk -m Rhives1_signalP_mature.fasta -v -l logfile1.txt Rhives1_wo_stops.fasta > Rhives1_signalP.csv
+
+######
+
+##tmhmm is used to look at the number of TM domains, we want the ones with zero. 
+##to run tmhmm:
+#module load tmhmm
+
+##copy these the first time
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/TMHMM
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/TMHMM
+
+##Then you can create a variable holding the path to the program:
+#DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
+#FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
+
+##run tmhmm in the format: 
+#cat Suivar1_GPCRs_from_GPCRHMM.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_output.txt
+
+######
+
+#to parse SSP's in R
+
 #load libraries
 library("seqinr")
 library("data.table")
-#data was generated using SignalP on the command line, followed by tmhmm on the "mature sequence" output form Signal P, also on the command line
 
 setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 #read in the input files
@@ -25,8 +66,17 @@ Suibr2_TMHMM<- data.frame(read.csv("Suibr2_TMHMM_SSP_output.txt", header = FALSE
 Suibov1_TMHMM<- data.frame(read.csv("Suibov1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
 Suiamp1_TMHMM<- data.frame(read.csv("Suiamp1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
 Suiame1_TMHMM<- data.frame(read.csv("Suiame1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+#non-Suillus set
+Rhivul1_TMHMM<- data.frame(read.csv("Rhivul1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Rhitru1_TMHMM<- data.frame(read.csv("Rhitru1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Amamu1_TMHMM<- data.frame(read.csv("Amamu1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Hebcy2_TMHMM<- data.frame(read.csv("Hebcy2_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Lacbi2_TMHMM<- data.frame(read.csv("Lacbi2_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Paxin1_TMHMM<- data.frame(read.csv("Paxin1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Pilcr1_TMHMM<- data.frame(read.csv("Pilcr1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Pismi1_TMHMM<- data.frame(read.csv("Pismi1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
+Sclci1_TMHMM<- data.frame(read.csv("Sclci1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
 
-View(Suivar1_TMHMM)
 
 #isolate relevent lines 
 #get only lines starting with a hash
@@ -49,7 +99,16 @@ Suibr2_TMHMM_sm<- data.frame(Suibr2_TMHMM[ grep("# jgi", Suibr2_TMHMM$header),])
 Suibov1_TMHMM_sm<- data.frame(Suibov1_TMHMM[ grep("# jgi", Suibov1_TMHMM$header),])
 Suiamp1_TMHMM_sm<- data.frame(Suiamp1_TMHMM[ grep("# jgi", Suiamp1_TMHMM$header),])
 Suiame1_TMHMM_sm<- data.frame(Suiame1_TMHMM[ grep("# jgi", Suiame1_TMHMM$header),])
-
+#non-Suillus set
+Rhivul1_TMHMM_sm<- data.frame(Rhivul1_TMHMM[ grep("# jgi", Rhivul1_TMHMM$header),])
+Rhitru1_TMHMM_sm<- data.frame(Rhitru1_TMHMM[ grep("# jgi", Rhitru1_TMHMM$header),])
+Amamu1_TMHMM_sm<- data.frame(Amamu1_TMHMM[ grep("# jgi", Amamu1_TMHMM$header),])
+Hebcy2_TMHMM_sm<- data.frame(Hebcy2_TMHMM[ grep("# jgi", Hebcy2_TMHMM$header),])
+Lacbi2_TMHMM_sm<- data.frame(Lacbi2_TMHMM[ grep("# jgi", Lacbi2_TMHMM$header),])
+Paxin1_TMHMM_sm<- data.frame(Paxin1_TMHMM[ grep("# jgi", Paxin1_TMHMM$header),])
+Pilcr1_TMHMM_sm<- data.frame(Pilcr1_TMHMM[ grep("# jgi", Pilcr1_TMHMM$header),])
+Pismi1_TMHMM_sm<- data.frame(Pismi1_TMHMM[ grep("# jgi", Pismi1_TMHMM$header),])
+Sclci1_TMHMM_sm<- data.frame(Sclci1_TMHMM[ grep("# jgi", Sclci1_TMHMM$header),])
 
 
 #combine the size and predicted TMD# by columns 
@@ -91,6 +150,25 @@ Suiamp1_TMHMM_sm.by.col<- data.frame(cbind(Suiamp1_TMHMM_sm[c(TRUE, FALSE), ],
                                 Suiamp1_TMHMM_sm[c(FALSE, TRUE), ]))
 Suiame1_TMHMM_sm.by.col<- data.frame(cbind(Suiame1_TMHMM_sm[c(TRUE, FALSE), ],
                                 Suiame1_TMHMM_sm[c(FALSE, TRUE), ]))
+#non-Suillus set
+Rhivul1_TMHMM_sm.by.col<- data.frame(cbind(Rhivul1_TMHMM_sm[c(TRUE, FALSE), ],
+                                           Rhivul1_TMHMM_sm[c(FALSE, TRUE), ]))
+Rhitru1_TMHMM_sm.by.col<- data.frame(cbind(Rhitru1_TMHMM_sm[c(TRUE, FALSE), ],
+                                           Rhitru1_TMHMM_sm[c(FALSE, TRUE), ]))
+Amamu1_TMHMM_sm.by.col<- data.frame(cbind(Amamu1_TMHMM_sm[c(TRUE, FALSE), ],
+                                           Amamu1_TMHMM_sm[c(FALSE, TRUE), ]))
+Hebcy2_TMHMM_sm.by.col<- data.frame(cbind(Hebcy2_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Hebcy2_TMHMM_sm[c(FALSE, TRUE), ]))
+Lacbi2_TMHMM_sm.by.col<- data.frame(cbind(Lacbi2_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Lacbi2_TMHMM_sm[c(FALSE, TRUE), ]))
+Paxin1_TMHMM_sm.by.col<- data.frame(cbind(Paxin1_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Paxin1_TMHMM_sm[c(FALSE, TRUE), ]))
+Pilcr1_TMHMM_sm.by.col<- data.frame(cbind(Pilcr1_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Pilcr1_TMHMM_sm[c(FALSE, TRUE), ]))
+Pismi1_TMHMM_sm.by.col<- data.frame(cbind(Pismi1_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Pismi1_TMHMM_sm[c(FALSE, TRUE), ]))
+Sclci1_TMHMM_sm.by.col<- data.frame(cbind(Sclci1_TMHMM_sm[c(TRUE, FALSE), ],
+                                          Sclci1_TMHMM_sm[c(FALSE, TRUE), ]))
 
 
 #only proteins with no TMD
@@ -113,6 +191,17 @@ Suibr2_TMHMM_no_TMD<- data.frame(Suibr2_TMHMM_sm.by.col[ grep("Number of predict
 Suibov1_TMHMM_no_TMD<- data.frame(Suibov1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Suibov1_TMHMM_sm.by.col$X2),])
 Suiamp1_TMHMM_no_TMD<- data.frame(Suiamp1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Suiamp1_TMHMM_sm.by.col$X2),])
 Suiame1_TMHMM_no_TMD<- data.frame(Suiame1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Suiame1_TMHMM_sm.by.col$X2),])
+#non-Suillus set
+Rhivul1_TMHMM_no_TMD<- data.frame(Rhivul1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Rhivul1_TMHMM_sm.by.col$X2),])
+Rhitru1_TMHMM_no_TMD<- data.frame(Rhitru1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Rhitru1_TMHMM_sm.by.col$X2),])
+Amamu1_TMHMM_no_TMD<- data.frame(Amamu1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Amamu1_TMHMM_sm.by.col$X2),])
+Hebcy2_TMHMM_no_TMD<- data.frame(Hebcy2_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Hebcy2_TMHMM_sm.by.col$X2),])
+Lacbi2_TMHMM_no_TMD<- data.frame(Lacbi2_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Lacbi2_TMHMM_sm.by.col$X2),])
+Paxin1_TMHMM_no_TMD<- data.frame(Paxin1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Paxin1_TMHMM_sm.by.col$X2),])
+Pilcr1_TMHMM_no_TMD<- data.frame(Pilcr1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Pilcr1_TMHMM_sm.by.col$X2),])
+Pismi1_TMHMM_no_TMD<- data.frame(Pismi1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Pismi1_TMHMM_sm.by.col$X2),])
+Sclci1_TMHMM_no_TMD<- data.frame(Sclci1_TMHMM_sm.by.col[ grep("Number of predicted TMHs:  0", Sclci1_TMHMM_sm.by.col$X2),])
+
 
 #function to isolate the aa length
 isolate_aa <- function(in_df) { 
@@ -143,6 +232,16 @@ Suibr2_df<- isolate_aa(Suibr2_TMHMM_no_TMD)
 Suibov1_df<- isolate_aa(Suibov1_TMHMM_no_TMD)
 Suiamp1_df<- isolate_aa(Suiamp1_TMHMM_no_TMD)
 Suiame1_df<- isolate_aa(Suiame1_TMHMM_no_TMD)
+#non-Suillus set
+Rhivul1_df<- isolate_aa(Rhivul1_TMHMM_no_TMD)
+Rhitru1_df<- isolate_aa(Rhitru1_TMHMM_no_TMD)
+Amamu1_df<- isolate_aa(Amamu1_TMHMM_no_TMD)
+Hebcy2_df<- isolate_aa(Hebcy2_TMHMM_no_TMD)
+Lacbi2_df<- isolate_aa(Lacbi2_TMHMM_no_TMD)
+Paxin1_df<- isolate_aa(Paxin1_TMHMM_no_TMD)
+Pilcr1_df<- isolate_aa(Pilcr1_TMHMM_no_TMD)
+Pismi1_df<- isolate_aa(Pismi1_TMHMM_no_TMD)
+Sclci1_df<- isolate_aa(Sclci1_TMHMM_no_TMD)
 
 #gotta convert the aa number into a a numeric type or R think's it's a char. string.
 Suivar1_df.num<-transform(Suivar1_df, V1 = as.numeric(V1))
@@ -164,6 +263,16 @@ Suibr2_df.num<-transform(Suibr2_df, V1 = as.numeric(V1))
 Suibov1_df.num<-transform(Suibov1_df, V1 = as.numeric(V1))
 Suiamp1_df.num<-transform(Suiamp1_df, V1 = as.numeric(V1))
 Suiame1_df.num<-transform(Suiame1_df, V1 = as.numeric(V1))
+#non-Suillus set
+Rhivul1_df.num<-transform(Rhivul1_df, V1 = as.numeric(V1))
+Rhitru1_df.num<-transform(Rhitru1_df, V1 = as.numeric(V1))
+Amamu1_df.num<-transform(Amamu1_df, V1 = as.numeric(V1))
+Hebcy2_df.num<-transform(Hebcy2_df, V1 = as.numeric(V1))
+Lacbi2_df.num<-transform(Lacbi2_df, V1 = as.numeric(V1))
+Paxin1_df.num<-transform(Paxin1_df, V1 = as.numeric(V1))
+Pilcr1_df.num<-transform(Pilcr1_df, V1 = as.numeric(V1))
+Pismi1_df.num<-transform(Pismi1_df, V1 = as.numeric(V1))
+Sclci1_df.num<-transform(Sclci1_df, V1 = as.numeric(V1))
 
 #only proteins < 300 aa in length
 Suivar1_TMHMM_no_TMD_300<- Suivar1_df.num[Suivar1_df.num$V1 < 300, ]
@@ -185,7 +294,16 @@ Suibr2_TMHMM_no_TMD_300<- Suibr2_df.num[Suibr2_df.num$V1 < 300, ]
 Suibov1_TMHMM_no_TMD_300<- Suibov1_df.num[Suibov1_df.num$V1 < 300, ]
 Suiamp1_TMHMM_no_TMD_300<- Suiamp1_df.num[Suiamp1_df.num$V1 < 300, ]
 Suiame1_TMHMM_no_TMD_300<- Suiame1_df.num[Suiame1_df.num$V1 < 300, ]
-
+#non-Suillus set
+Rhivul1_TMHMM_no_TMD_300<- Rhivul1_df.num[Rhivul1_df.num$V1 < 300, ]
+Rhitru1_TMHMM_no_TMD_300<- Rhitru1_df.num[Rhitru1_df.num$V1 < 300, ]
+Amamu1_TMHMM_no_TMD_300<- Amamu1_df.num[Amamu1_df.num$V1 < 300, ]
+Hebcy2_TMHMM_no_TMD_300<- Hebcy2_df.num[Hebcy2_df.num$V1 < 300, ]
+Lacbi2_TMHMM_no_TMD_300<- Lacbi2_df.num[Lacbi2_df.num$V1 < 300, ]
+Paxin1_TMHMM_no_TMD_300<- Paxin1_df.num[Paxin1_df.num$V1 < 300, ]
+Pilcr1_TMHMM_no_TMD_300<- Pilcr1_df.num[Pilcr1_df.num$V1 < 300, ]
+Pismi1_TMHMM_no_TMD_300<- Pismi1_df.num[Pismi1_df.num$V1 < 300, ]
+Sclci1_TMHMM_no_TMD_300<- Sclci1_df.num[Sclci1_df.num$V1 < 300, ]
 
 #get #SSP's per genome
 #get summary numbers for each of these and attach them to the previous output file. 
@@ -208,6 +326,16 @@ Suibr2<- nrow(Suibr2_TMHMM_no_TMD_300)
 Suibov1<- nrow(Suibov1_TMHMM_no_TMD_300)
 Suiamp1<- nrow(Suiamp1_TMHMM_no_TMD_300)
 Suiame1<- nrow(Suiame1_TMHMM_no_TMD_300)
+#non-Suillus set
+Rhivul1<- nrow(Rhivul1_TMHMM_no_TMD_300)
+Rhitru1<- nrow(Rhitru1_TMHMM_no_TMD_300)
+Amamu1<- nrow(Amamu1_TMHMM_no_TMD_300)
+Hebcy2<- nrow(Hebcy2_TMHMM_no_TMD_300)
+Lacbi2<- nrow(Lacbi2_TMHMM_no_TMD_300)
+Paxin1<- nrow(Paxin1_TMHMM_no_TMD_300)
+Pilcr1<- nrow(Pilcr1_TMHMM_no_TMD_300)
+Pismi1<- nrow(Pismi1_TMHMM_no_TMD_300)
+Sclci1<- nrow(Sclci1_TMHMM_no_TMD_300)
 
 
 totals.2<- data.frame(cbind(Suivar1, 
@@ -227,7 +355,16 @@ totals.2<- data.frame(cbind(Suivar1,
                             Suibr2, 
                             Suibov1, 
                             Suiamp1, 
-                            Suiame1),
+                            Suiame1, 
+                            Rhivul1,
+                            Rhitru1,
+                            Amamu1,
+                            Hebcy2,
+                            Lacbi2,
+                            Paxin1,
+                            Pilcr1,
+                            Pismi1,
+                            Sclci1),
                       row.names = "#SSPs_signalP,TMHMM,lt_300aa")
 totals.2[1,]
 
@@ -277,6 +414,27 @@ Suiamp1_in<- seqinr::read.fasta(file = "Suiamp1_wo_stops.fasta",
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suiame1_in<- seqinr::read.fasta(file = "Suiame1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+#non-Suillus set
+Rhivul1_in<- seqinr::read.fasta(file = "Rhivul1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rhitru1_in<- seqinr::read.fasta(file = "Rhitru1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Amamu1_in<- seqinr::read.fasta(file = "Amamu1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Hebcy2_in<- seqinr::read.fasta(file = "Hebcy2_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Lacbi2_in<- seqinr::read.fasta(file = "Lacbi2_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Paxin1_in<- seqinr::read.fasta(file = "Paxin1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Pilcr1_in<- seqinr::read.fasta(file = "Pilcr1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Pismi1_in<- seqinr::read.fasta(file = "Pismi1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Sclci1_in<- seqinr::read.fasta(file = "Sclci1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+
+
 
 
 #function to isolate the isolate_ID
@@ -366,6 +524,43 @@ Suiame1_subset <- data.frame(substr(Suiame1_TMHMM_no_TMD_300$X1, 3,nchar(Suiame1
 Suiame1.2_subset<- isolate_ID(Suiame1_subset) 
 Suiame1.3_subset<- data.frame(lapply(Suiame1.2_subset, gsub, pattern=' ', replacement=''))
 
+#non-Suillus set
+Rhivul1_subset <- data.frame(substr(Rhivul1_TMHMM_no_TMD_300$X1, 3,nchar(Rhivul1_TMHMM_no_TMD_300$X1)))
+Rhivul1.2_subset<- isolate_ID(Rhivul1_subset) 
+Rhivul1.3_subset<- data.frame(lapply(Rhivul1.2_subset, gsub, pattern=' ', replacement=''))
+
+Rhitru1_subset <- data.frame(substr(Rhitru1_TMHMM_no_TMD_300$X1, 3,nchar(Rhitru1_TMHMM_no_TMD_300$X1)))
+Rhitru1.2_subset<- isolate_ID(Rhitru1_subset) 
+Rhitru1.3_subset<- data.frame(lapply(Rhitru1.2_subset, gsub, pattern=' ', replacement=''))
+
+Amamu1_subset <- data.frame(substr(Amamu1_TMHMM_no_TMD_300$X1, 3,nchar(Amamu1_TMHMM_no_TMD_300$X1)))
+Amamu1.2_subset<- isolate_ID(Amamu1_subset) 
+Amamu1.3_subset<- data.frame(lapply(Amamu1.2_subset, gsub, pattern=' ', replacement=''))
+
+Hebcy2_subset <- data.frame(substr(Hebcy2_TMHMM_no_TMD_300$X1, 3,nchar(Hebcy2_TMHMM_no_TMD_300$X1)))
+Hebcy2.2_subset<- isolate_ID(Hebcy2_subset) 
+Hebcy2.3_subset<- data.frame(lapply(Hebcy2.2_subset, gsub, pattern=' ', replacement=''))
+
+Lacbi2_subset <- data.frame(substr(Lacbi2_TMHMM_no_TMD_300$X1, 3,nchar(Lacbi2_TMHMM_no_TMD_300$X1)))
+Lacbi2.2_subset<- isolate_ID(Lacbi2_subset) 
+Lacbi2.3_subset<- data.frame(lapply(Lacbi2.2_subset, gsub, pattern=' ', replacement=''))
+
+Paxin1_subset <- data.frame(substr(Paxin1_TMHMM_no_TMD_300$X1, 3,nchar(Paxin1_TMHMM_no_TMD_300$X1)))
+Paxin1.2_subset<- isolate_ID(Paxin1_subset) 
+Paxin1.3_subset<- data.frame(lapply(Paxin1.2_subset, gsub, pattern=' ', replacement=''))
+
+Pilcr1_subset <- data.frame(substr(Pilcr1_TMHMM_no_TMD_300$X1, 3,nchar(Pilcr1_TMHMM_no_TMD_300$X1)))
+Pilcr1.2_subset<- isolate_ID(Pilcr1_subset) 
+Pilcr1.3_subset<- data.frame(lapply(Pilcr1.2_subset, gsub, pattern=' ', replacement=''))
+
+Pismi1_subset <- data.frame(substr(Pismi1_TMHMM_no_TMD_300$X1, 3,nchar(Pismi1_TMHMM_no_TMD_300$X1)))
+Pismi1.2_subset<- isolate_ID(Pismi1_subset) 
+Pismi1.3_subset<- data.frame(lapply(Pismi1.2_subset, gsub, pattern=' ', replacement=''))
+
+Sclci1_subset <- data.frame(substr(Sclci1_TMHMM_no_TMD_300$X1, 3,nchar(Sclci1_TMHMM_no_TMD_300$X1)))
+Sclci1.2_subset<- isolate_ID(Sclci1_subset) 
+Sclci1.3_subset<- data.frame(lapply(Sclci1.2_subset, gsub, pattern=' ', replacement=''))
+
 
 #get fastas of only positive hits for EffectorP analysis 
 Suivar1_SSP_fastas<- Suivar1_in[c(which(names(Suivar1_in) %in% Suivar1.3_subset$V1))]
@@ -387,6 +582,17 @@ Suibr2_SSP_fastas<- Suibr2_in[c(which(names(Suibr2_in) %in% Suibr2.3_subset$V1))
 Suibov1_SSP_fastas<- Suibov1_in[c(which(names(Suibov1_in) %in% Suibov1.3_subset$V1))]
 Suiamp1_SSP_fastas<- Suiamp1_in[c(which(names(Suiamp1_in) %in% Suiamp1.3_subset$V1))]
 Suiame1_SSP_fastas<- Suiame1_in[c(which(names(Suiame1_in) %in% Suiame1.3_subset$V1))]
+#non-Suillus set
+Rhivul1_SSP_fastas<- Rhivul1_in[c(which(names(Rhivul1_in) %in% Rhivul1.3_subset$V1))]
+Rhitru1_SSP_fastas<- Rhitru1_in[c(which(names(Rhitru1_in) %in% Rhitru1.3_subset$V1))]
+Amamu1_SSP_fastas<- Amamu1_in[c(which(names(Amamu1_in) %in% Amamu1.3_subset$V1))]
+Hebcy2_SSP_fastas<- Hebcy2_in[c(which(names(Hebcy2_in) %in% Hebcy2.3_subset$V1))]
+Lacbi2_SSP_fastas<- Lacbi2_in[c(which(names(Lacbi2_in) %in% Lacbi2.3_subset$V1))]
+Paxin1_SSP_fastas<- Paxin1_in[c(which(names(Paxin1_in) %in% Paxin1.3_subset$V1))]
+Pilcr1_SSP_fastas<- Pilcr1_in[c(which(names(Pilcr1_in) %in% Pilcr1.3_subset$V1))]
+Pismi1_SSP_fastas<- Pismi1_in[c(which(names(Pismi1_in) %in% Pismi1.3_subset$V1))]
+Sclci1_SSP_fastas<- Sclci1_in[c(which(names(Sclci1_in) %in% Sclci1.3_subset$V1))]
+
 
 #make sure nothing screwy went on and the fasta are the correct lenght
 #n SSP's 
@@ -418,11 +624,20 @@ write.fasta(Suibr2_SSP_fastas, names = names(Suibr2_SSP_fastas), open = "w", nbc
 write.fasta(Suibov1_SSP_fastas, names = names(Suibov1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suibov1_SSPs_for_EffectorP.fasta")
 write.fasta(Suiamp1_SSP_fastas, names = names(Suiamp1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiamp1_SSPs_for_EffectorP.fasta")
 write.fasta(Suiame1_SSP_fastas, names = names(Suiame1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiame1_SSPs_for_EffectorP.fasta")
+#non-Suillus set
+write.fasta(Rhivul1_SSP_fastas, names = names(Rhivul1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhivul1_SSPs_for_EffectorP.fasta")
+write.fasta(Rhitru1_SSP_fastas, names = names(Rhitru1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhitru1_SSPs_for_EffectorP.fasta")
+write.fasta(Amamu1_SSP_fastas, names = names(Amamu1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Amamu1_SSPs_for_EffectorP.fasta")
+write.fasta(Hebcy2_SSP_fastas, names = names(Hebcy2_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Hebcy2_SSPs_for_EffectorP.fasta")
+write.fasta(Lacbi2_SSP_fastas, names = names(Lacbi2_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Lacbi2_SSPs_for_EffectorP.fasta")
+write.fasta(Paxin1_SSP_fastas, names = names(Paxin1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Paxin1_SSPs_for_EffectorP.fasta")
+write.fasta(Pilcr1_SSP_fastas, names = names(Pilcr1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pilcr1_SSPs_for_EffectorP.fasta")
+write.fasta(Pismi1_SSP_fastas, names = names(Pismi1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pismi1_SSPs_for_EffectorP.fasta")
+write.fasta(Sclci1_SSP_fastas, names = names(Sclci1_SSP_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Sclci1_SSPs_for_EffectorP.fasta")
 
 
 ########
 #now run EffectorP version2 on the web interface
-
 #######
 
 
@@ -465,6 +680,25 @@ Suiamp1_effectors<- seqinr::read.fasta(file = "Suiamp1_EffectorCandidates.fasta"
                                        seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suiame1_effectors<- seqinr::read.fasta(file = "Suiame1_EffectorCandidates.fasta", 
                                        seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+#non-Suillus set
+Rhivul1_effectors<- seqinr::read.fasta(file = "Rhivul1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rhitru1_effectors<- seqinr::read.fasta(file = "Rhitru1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Amamu1_effectors<- seqinr::read.fasta(file = "Amamu1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Hebcy2_effectors<- seqinr::read.fasta(file = "Hebcy2_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Lacbi2_effectors<- seqinr::read.fasta(file = "Lacbi2_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Paxin1_effectors<- seqinr::read.fasta(file = "Paxin1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Pilcr1_effectors<- seqinr::read.fasta(file = "Pilcr1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Pismi1_effectors<- seqinr::read.fasta(file = "Pismi1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Sclci1_effectors<- seqinr::read.fasta(file = "Sclci1_EffectorCandidates.fasta", 
+                                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 
 
 
@@ -489,6 +723,18 @@ Suibr2<- length(Suibr2_effectors)
 Suibov1<- length(Suibov1_effectors)
 Suiamp1<- length(Suiamp1_effectors)
 Suiame1<- length(Suiame1_effectors)
+#non-Suillus set
+Rhivul1<- length(Rhivul1_effectors)
+Rhitru1<- length(Rhitru1_effectors)
+Amamu1<- length(Amamu1_effectors)
+Hebcy2<- length(Hebcy2_effectors)
+Lacbi2<- length(Lacbi2_effectors)
+Paxin1<- length(Paxin1_effectors)
+Pilcr1<- length(Pilcr1_effectors)
+Pismi1<- length(Pismi1_effectors)
+Sclci1<- length(Sclci1_effectors)
+
+
 
 total_effectors<- data.frame(cbind(Suivar1, 
                                    Suitom1, 
@@ -508,7 +754,16 @@ total_effectors<- data.frame(cbind(Suivar1,
                                    Suibr2, 
                                    Suibov1, 
                                    Suiamp1, 
-                                   Suiame1),
+                                   Suiame1, 
+                                   Rhivul1,
+                                   Rhitru1,
+                                   Amamu1,
+                                   Hebcy2,
+                                   Lacbi2,
+                                   Paxin1,
+                                   Pilcr1,
+                                   Pismi1,
+                                   Sclci1),
                              row.names = "n_putative_effectors_from_EffectorP")
 
 
@@ -533,6 +788,16 @@ Suibr2<- nrow(Suibr2_TMHMM_no_TMD_300)
 Suibov1<- nrow(Suibov1_TMHMM_no_TMD_300)
 Suiamp1<- nrow(Suiamp1_TMHMM_no_TMD_300)
 Suiame1<- nrow(Suiame1_TMHMM_no_TMD_300)
+#non-Suillus set
+Rhivul1<- nrow(Rhivul1_TMHMM_no_TMD_300)
+Rhitru1<- nrow(Rhitru1_TMHMM_no_TMD_300)
+Amamu1<- nrow(Amamu1_TMHMM_no_TMD_300)
+Hebcy2<- nrow(Hebcy2_TMHMM_no_TMD_300)
+Lacbi2<- nrow(Lacbi2_TMHMM_no_TMD_300)
+Paxin1<- nrow(Paxin1_TMHMM_no_TMD_300)
+Pilcr1<- nrow(Pilcr1_TMHMM_no_TMD_300)
+Pismi1<- nrow(Pismi1_TMHMM_no_TMD_300)
+Sclci1<- nrow(Sclci1_TMHMM_no_TMD_300)
 
 
 total_SSPs<- data.frame(cbind(Suivar1, 
@@ -553,7 +818,16 @@ total_SSPs<- data.frame(cbind(Suivar1,
                             Suibr2, 
                             Suibov1, 
                             Suiamp1, 
-                            Suiame1),
+                            Suiame1, 
+                            Rhivul1,
+                            Rhitru1,
+                            Amamu1,
+                            Hebcy2,
+                            Lacbi2,
+                            Paxin1,
+                            Pilcr1,
+                            Pismi1,
+                            Sclci1),
                       row.names = "#SSPs_signalP,TMHMM,lt_300aa")
 
 
@@ -577,6 +851,16 @@ Suibr2<- length(Suibr2_in)
 Suibov1<- length(Suibov1_in)
 Suiamp1<- length(Suiamp1_in)
 Suiame1<- length(Suiame1_in)
+#non-Suillus set
+Rhivul1<- length(Rhivul1_in)
+Rhitru1<- length(Rhitru1_in)
+Amamu1<- length(Amamu1_in)
+Hebcy2<- length(Hebcy2_in)
+Lacbi2<- length(Lacbi2_in)
+Paxin1<- length(Paxin1_in)
+Pilcr1<- length(Pilcr1_in)
+Pismi1<- length(Pismi1_in)
+Sclci1<- length(Sclci1_in)
 
 
 total_proteins<-data.frame(cbind(Suivar1, 
@@ -597,7 +881,16 @@ total_proteins<-data.frame(cbind(Suivar1,
                                  Suibr2, 
                                  Suibov1, 
                                  Suiamp1, 
-                                 Suiame1),
+                                 Suiame1,
+                                 Rhivul1,
+                                 Rhitru1,
+                                 Amamu1,
+                                 Hebcy2,
+                                 Lacbi2,
+                                 Paxin1,
+                                 Pilcr1,
+                                 Pismi1,
+                                 Sclci1),
                            row.names = "n_putative_proteins_from_gene_cat")  
 
 #bind results and transform
@@ -617,6 +910,7 @@ percent_effectors_out_of_SSPs<-signif(percent_effectors_out_of_SSPs, digits = 4)
 #slap it together
 results_with_percentages<- cbind(results.1, percent_SSPs_out_of_total_genes, percent_effectors_out_of_total_genes, percent_effectors_out_of_SSPs)
   
+View(results_with_percentages)
 #write it up
 write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals.csv")
 
