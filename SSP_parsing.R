@@ -373,7 +373,7 @@ totals.2[1,]
 write.csv(totals.2, quote = FALSE, file = "SSP_totals.csv")
 
 
-#now parce out the SSP's from the original aa sequences. 
+#now parse out the SSP's from the original aa sequences. 
 
 #read in the whole proteome fastas
 Suivar1_in<- seqinr::read.fasta(file = "Suivar1_wo_stops.fasta", 
@@ -910,7 +910,346 @@ percent_effectors_out_of_SSPs<-signif(percent_effectors_out_of_SSPs, digits = 4)
 #slap it together
 results_with_percentages<- cbind(results.1, percent_SSPs_out_of_total_genes, percent_effectors_out_of_total_genes, percent_effectors_out_of_SSPs)
   
-View(results_with_percentages)
+
 #write it up
 write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals.csv")
 
+
+#read in genome size file and run stats for table
+genome_size_df<- read.csv("genome_size_data.csv")
+
+
+
+#split the two data categories for genome size and get stats for each
+Suillus_genome_size<-data.frame(genome_size_df[ grep("Sui", genome_size_df[,1],), ])
+Suillus_genome_size_mean<- mean(Suillus_genome_size$genome_size)
+std <- function(x) sd(x)/sqrt(length(x))
+Suillus_genome_size_SD<- sd(Suillus_genome_size$genome_size)
+Suillus_genome_size_SE<- std(Suillus_genome_size$genome_size)  
+
+Other_genome_size<-data.frame(genome_size_df[ grep("Sui", genome_size_df[,1], invert = TRUE), ])
+Other_genome_size_mean<- mean(Other_genome_size$genome_size)
+
+Other_genome_size_SD<- sd(Other_genome_size$genome_size)
+Other_genome_size_SE<- std(Other_genome_size$genome_size)
+
+
+#test normality 
+shapiro.test(Suillus_genome_size$genome_size)
+#not normal
+shapiro.test(Other_genome_size$genome_size)
+#not normal
+
+#test for equal variance 
+var.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size)
+#variance is not sif. different, but can't trust becasue not nomal, be conservatice and use unequal var in test
+
+#t-test 
+t.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size, var.equal = FALSE)
+
+
+
+#split and get stats for n proteins 
+results_with_percentages_for_split<- cbind(results_with_percentages, row.names(results_with_percentages))
+Suillus_ssps<-data.frame(results_with_percentages_for_split[ grep("Sui", results_with_percentages_for_split[,7],), ])
+Suillus_ssps<- Suillus_ssps[,1:6]
+Other_ssps<- data.frame(results_with_percentages_for_split[ grep("Sui", results_with_percentages_for_split[,7], invert = TRUE), ])
+Other_ssps<- Other_ssps[,1:6]
+
+#need to convert these to numeric form aparently . . . 
+Suillus_ssps[] <- lapply(Suillus_ssps, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(Suillus_ssps, class)
+
+#and the other one too...
+Other_ssps[] <- lapply(Other_ssps, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(Other_ssps, class)
+
+Suillus_n_prot_mean<- mean(Suillus_ssps$n_putative_proteins_from_gene_cat)
+Suillus_n_prot_SD<- sd(Suillus_ssps$n_putative_proteins_from_gene_cat)
+Suillus_n_prot_SE<- std(Suillus_ssps$n_putative_proteins_from_gene_cat)
+
+Other_n_prot_mean<- mean(Other_ssps$n_putative_proteins_from_gene_cat)
+Other_n_prot_SD<- sd(Other_ssps$n_putative_proteins_from_gene_cat)
+Other_n_prot_SE<- std(Other_ssps$n_putative_proteins_from_gene_cat)
+
+
+#test normality 
+shapiro.test(Suillus_ssps$n_putative_proteins_from_gene_ca)
+#normal
+shapiro.test(Other_ssps$n_putative_proteins_from_gene_ca)
+#normal
+
+#test for equal variance 
+var.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat)
+#variance is not sif. different 
+
+#t-test 
+t.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat, var.equal = TRUE)
+
+
+#get stats for SSP's 
+Suillus_ssp_mean<- mean(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Suillus_ssp_SD<- sd(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Suillus_ssp_SE<- std(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+
+Other_ssp_mean<- mean(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Other_ssp_SD<- sd(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Other_ssp_SE<- std(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+
+#test normality 
+shapiro.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+#normal-ish
+shapiro.test(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+#normal
+
+#test for equal variance 
+var.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+#variance is not sif. different 
+
+#t-test 
+t.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa, var.equal = TRUE)
+
+
+
+#get stats for effectors
+Suillus_effectors_mean<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
+Suillus_effectors_SD<- sd(Suillus_ssps$n_putative_effectors_from_EffectorP)
+Suillus_effectors_SE<- std(Suillus_ssps$n_putative_effectors_from_EffectorP)
+
+Other_effectors_mean<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
+Other_effectors_SD<- sd(Other_ssps$n_putative_effectors_from_EffectorP)
+Other_effectors_SE<- std(Other_ssps$n_putative_effectors_from_EffectorP)
+
+#test normality 
+shapiro.test(Suillus_ssps$n_putative_effectors_from_EffectorP)
+#not normal
+shapiro.test(Other_ssps$n_putative_effectors_from_EffectorP)
+#not normal
+
+#test for equal variance 
+var.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP)
+#variance is not sif. different, but we can't trust it becaseu it's not normal, use conservatie var = FALSE in test
+
+#t-test 
+t.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP, var.equal = FALSE)
+#not different
+
+
+#parse the SSP's from the SSSP's
+#to do this, upload the outout fasta files of SSP's and run them in orthofinder. 
+ortho_finder_SSP_results<- read.table("Statistics_PerSpecies_all_ECM.csv", sep = ",", row.names = 1, header=TRUE)
+
+#the perninant info: 
+SSP_vs_SSSP1<- ortho_finder_SSP_results[1:3,]
+SSP_vs_SSSP<- t(SSP_vs_SSSP1)
+
+
+#get percent SSSP's of SSP's
+percent_SSPs_out_of_SSSPs<- (100*(SSP_vs_SSSP[,3]) / SSP_vs_SSSP[,1])
+                            
+percent_SSPs_out_of_SSSPs<- data.frame(signif(percent_SSPs_out_of_SSSPs, digits = 3))
+
+
+
+
+#######START HERE WITH GRAPHS######## 
+######### % SSP's out of total proteins 
+med1= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "a_Suillus"])
+med2= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "b_Other"])
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSPs_out_of_prot_df$`%` ~ SSPs_out_of_prot_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,4), 
+           ylab = "% SSPs out of all proteins", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med1, x1 = 1.3, y1=med1, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med2, x1 = 2.3, y1=med2, lwd = 2, col = "black" )
+#add boxplot around the data? 
+  #boxplot(`%` ~ group, data = SSPs_out_of_SSSPs_df, add=TRUE, range=0, whisklty = 0, staplelty = 0)
+
+
+
+
+#######SSSP's as a percentage of SSP's########
+percent_SSSPs_out_of_SSPs_Suillus<- (100*SSP_vs_SSSP_raw_Suillus[,3] / SSP_vs_SSSP_raw_Suillus[,1])
+percent_SSSPs_out_of_SSPs_Suillus<- data.frame(signif(percent_SSSPs_out_of_SSPs_Suillus, digits = 3))
+
+percent_SSSPs_out_of_SSPs_Other<- (100*SSP_vs_SSSP_raw_Other[,3] / SSP_vs_SSSP_raw_Other[,1])
+percent_SSSPs_out_of_SSPs_Other<- data.frame(signif(percent_SSSPs_out_of_SSPs_Other, digits = 3))
+
+Suillus2<- cbind(percent_SSSPs_out_of_SSPs_Suillus, rep("a_Suillus", length(percent_SSSPs_out_of_SSPs_Suillus)))
+colnames(Suillus2)<- c("%", "group")
+
+Other_ECM2<- cbind(percent_SSSPs_out_of_SSPs_Other, rep("b_Other", length(percent_SSSPs_out_of_SSPs_Other)))
+colnames(Other_ECM2)<- c("%", "group")
+
+SSPs_out_of_SSSPs_df<- rbind(Suillus2, Other_ECM2)
+
+med3= mean(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_Suillus"])
+med4= mean(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "b_Other"])
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSPs_out_of_SSSPs_df$`%` ~ SSPs_out_of_SSSPs_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 19, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,70), 
+           ylab = "% SSSPs out of SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+
+
+
+#######Effectors as a percentage of SSP's########
+
+percent_effector_Suillus<- as.numeric(Suillus_ssps$percent_effectors_out_of_SSPs)
+percent_effector_Other<- as.numeric(Other_ssps$percent_effectors_out_of_SSPs)
+
+Suillus3<- cbind(percent_effector_Suillus, rep("a_Suillus", length(percent_effector_Suillus)))
+colnames(Suillus3)<- c("%", "group")
+
+Other_ECM3<- cbind(percent_effector_Other, rep("b_Other", length(percent_effector_Other)))
+colnames(Other_ECM3)<- c("%", "group")
+
+effectors_out_of_SSSPs_df<- data.frame(rbind(Suillus3, Other_ECM3))
+
+
+med3= mean(Suillus_ssps$percent_effectors_out_of_SSPs)
+med4= mean(Other_ssps$percent_effectors_out_of_SSPs)
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(effectors_out_of_SSSPs_df$X. ~ effectors_out_of_SSSPs_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 19, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,50), 
+           ylab = "% Effectors out of SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+
+
+
+
+##########same as above but with raw numbers rather than percentages############
+
+###### form Raw data (no %): SSP's #######
+Suillus_ssps[,2] #total Suillus SSPs
+Other_ssps[,2] #total Other ECM SSPs
+
+SSPs_Suillus<- as.numeric(Suillus_ssps[,2])
+SSPs_Suillus_df<- data.frame(cbind(Suillus_ssps[,2], rep("a_Suillus", length(Suillus_ssps[,2]))))
+
+SSPs_Other<- as.numeric(Other_ssps[,2])
+SSPs_Other_df<- data.frame(cbind(Other_ssps[,2], rep("b_Other", length(Other_ssps[,2]))))
+
+SSP_df<- data.frame(rbind(SSPs_Suillus_df, SSPs_Other_df))
+
+med3= mean(SSPs_Suillus)
+med4= mean(SSPs_Other)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSP_df$X1 ~ SSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,550), 
+           ylab = "SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+
+
+
+###### form Raw data (no %): SSSP's #######
+SSSPs_Suillus<- as.numeric(SSP_vs_SSSP_raw_Suillus[,3])
+SSSPs_Suillus_df<- data.frame(cbind(SSP_vs_SSSP_raw_Suillus[,3], rep("a_Suillus", length(SSP_vs_SSSP_raw_Suillus[,3]))))
+
+SSSPs_Other<- as.numeric(SSP_vs_SSSP_raw_Other[,3])
+SSSPs_Other_df<- data.frame(cbind(SSP_vs_SSSP_raw_Other[,3], rep("b_Other", length(SSP_vs_SSSP_raw_Other[,3]))))
+
+SSSP_df<- data.frame(rbind(SSSPs_Suillus_df, SSSPs_Other_df))
+
+med3= mean(SSSPs_Suillus)
+med4= mean(SSSPs_Other)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSSP_df$X1 ~ SSSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,360), 
+           ylab = "SSSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+
+###### form Raw data (no %): Effectors #######
+effector_Suillus<- as.numeric(Suillus_ssps$n_putative_effectors_from_EffectorP)
+effector_Suillus_df<- data.frame(cbind(Suillus_ssps$n_putative_effectors_from_EffectorP, rep("a_Suillus", length(Suillus_ssps$n_putative_effectors_from_EffectorP))))
+
+effector_Other<- as.numeric(Other_ssps$n_putative_effectors_from_EffectorP)
+effector_Other_df<- data.frame(cbind(Other_ssps$n_putative_effectors_from_EffectorP, rep("b_Other", length(Other_ssps$n_putative_effectors_from_EffectorP))))
+
+effector_df<- data.frame(rbind(effector_Suillus_df, effector_Other_df))
+
+med3<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
+med4<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(effector_df$X1 ~ effector_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#F0502B",  "#F79552"),
+           bg = rep(c("#F0502B", "#F79552")),
+           cex.axis = 0.7,
+           ylim=c(0,280), 
+           ylab = "Effectors", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
