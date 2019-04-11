@@ -1,42 +1,108 @@
 ##this script gives code and instructions for obtaining and parsing SSP's from aa protein files. 
 ##in short:
 ##aa were procured from JGI Mycocosm, 
-##SignalP was run on the command line
-##tmhmm on the "mature sequence" output form Signal P also on the command line
-##tmhmm outoput was procesed in R using the following scripts 
+##SignalP5 and TMHMM were run on the command line
+##TMHMM outoput was procesed in R using the following scripts 
 ##aa files from tmhmm results were run in EffectorP using the online interface
 ##results from EffectorP were analysed in R using the following scripts
 
 
 ######
-
 #signalP is used to identify proteins with secretion signal peptides
-##to run signalP:
-#cd /home/kennedyp/llofgren/COMP/SignalP
-#module load signalp4
+#This is a .pbs script that runs signalP5 and TMHMM
 
-##note, the -m tag is what then gets fed into TMHMM. This gives you fasta fiels for the peptides that have SP's, 
-##but removes the SP itself from the peptide. This is a good thing, because TMHMM produces false positives when it encounters transmembrane helix's
+#!/bin/bash -l 
+#PBS -l walltime=12:00:00,mem=62gb,nodes=1:ppn=20
+#PBS -m abe 
+#PBS -M llofgren@umn.edu
 
-#signalp -t euk -m Rhives1_signalP_mature.fasta -v -l logfile1.txt Rhives1_wo_stops.fasta > Rhives1_signalP.csv
+cd /home/kennedyp/llofgren/COMP/SignalP
 
-######
+#RUN SIGNALP
+module load signalp/5.0
 
-##tmhmm is used to look at the number of TM domains, we want the ones with zero. 
-##to run tmhmm:
-#module load tmhmm
+signalp -fasta Suivar1_wo_stops.fasta -format short -mature
+signalp -fasta Suitom1_wo_stops.fasta -format short -mature
+signalp -fasta Suisub1_wo_stops.fasta -format short -mature
+signalp -fasta Suisu1_wo_stops.fasta -format short -mature
+signalp -fasta Suipla1_wo_stops.fasta -format short -mature
+signalp -fasta Suipic1_wo_stops.fasta -format short -mature
+signalp -fasta Suipal1_wo_stops.fasta -format short -mature
+signalp -fasta Suiocc1_wo_stops.fasta -format short -mature
+signalp -fasta Suilu4_wo_stops.fasta -format short -mature
+signalp -fasta Suilak1_wo_stops.fasta -format short -mature
+signalp -fasta Suihi1_wo_stops.fasta -format short -mature
+signalp -fasta Suigr1_wo_stops.fasta -format short -mature
+signalp -fasta Suidec1_wo_stops.fasta -format short -mature
+signalp -fasta Suicot1_wo_stops.fasta -format short -mature
+signalp -fasta Suicli1_wo_stops.fasta -format short -mature
+signalp -fasta Suibr2_wo_stops.fasta -format short -mature
+signalp -fasta Suibov1_wo_stops.fasta -format short -mature
+signalp -fasta Suiamp1_wo_stops.fasta -format short -mature
+signalp -fasta Suiame1_wo_stops.fasta -format short -mature
 
-##copy these the first time
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/TMHMM
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/TMHMM
 
-##Then you can create a variable holding the path to the program:
-#DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
-#FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
+signalp -fasta Rhivul1_wo_stops.fasta -format short -mature
+signalp -fasta Rhitru1_wo_stops.fasta -format short -mature
+signalp -fasta Amamu1_wo_stops.fasta -format short -mature
+signalp -fasta Hebcy2_wo_stops.fasta -format short -mature
+signalp -fasta Lacbi2_wo_stops.fasta -format short -mature
+signalp -fasta Paxin1_wo_stops.fasta -format short -mature
+signalp -fasta Pilcr1_wo_stops.fasta -format short -mature
+signalp -fasta Pismi1_wo_stops.fasta -format short -mature
+signalp -fasta Sclci1_wo_stops.fasta -format short -mature
 
-##run tmhmm in the format: 
-#cat Suivar1_GPCRs_from_GPCRHMM.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_output.txt
 
+#RUN TMHMM
+#available as a module at MSI, but there's an error with the install on their end. The first time, you have to copy a file from the install into your destination folder
+
+module load tmhmm
+
+#copy these the first time
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/SignalP
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/SignalP
+
+#Then you can create a variable holding the path to the program:
+DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
+FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
+
+#run tmhmm in the format: 
+#cat my.fasta | ${DECODE} -f /my/destination_path/TMHMM2.0.options
+#-modelfile /my/destination_path/TMHMM2.0.model -N1 -PrintNumbers
+#-PrintScore -PrintStat | perl ${FORMAT} > formatted_output.txt
+
+cat Suivar1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_SPP_output.txt
+cat Suitom1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suitom1_TMHMM_SPP_output.txt
+cat Suisub1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisub1_TMHMM_SPP_output.txt
+cat Suisu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisu1_TMHMM_SPP_output.txt
+cat Suipla1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipla1_TMHMM_SPP_output.txt
+cat Suipic1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipic1_TMHMM_SPP_output.txt
+cat Suipal1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipal1_TMHMM_SPP_output.txt
+cat Suiocc1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiocc1_TMHMM_SPP_output.txt
+cat Suilu4_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilu4_TMHMM_SPP_output.txt
+cat Suilak1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilak1_TMHMM_SPP_output.txt
+cat Suihi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suihi1_TMHMM_SPP_output.txt
+cat Suigr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suigr1_TMHMM_SPP_output.txt
+cat Suidec1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suidec1_TMHMM_SPP_output.txt
+cat Suicot1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicot1_TMHMM_SPP_output.txt
+cat Suicli1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicli1_TMHMM_SPP_output.txt
+cat Suibr2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibr2_TMHMM_SPP_output.txt
+cat Suibov1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibov1_TMHMM_SPP_output.txt
+cat Suiamp1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiamp1_TMHMM_SPP_output.txt
+cat Suiame1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiame1_TMHMM_SPP_output.txt
+
+
+cat Rhivul1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhivul1_TMHMM_SPP_output.txt
+cat Rhitru1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhitru1_TMHMM_SPP_output.txt
+cat Amamu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Amamu1_TMHMM_SPP_output.txt
+cat Hebcy2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Hebcy2_TMHMM_SPP_output.txt
+cat Lacbi2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Lacbi2_TMHMM_SPP_output.txt
+cat Paxin1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Paxin1_TMHMM_SPP_output.txt
+cat Pilcr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pilcr1_TMHMM_SPP_output.txt
+cat Pismi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pismi1_TMHMM_SPP_output.txt
+cat Sclci1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Sclci1_TMHMM_SPP_output.txt
+
+#end .pbs script is here 
 ######
 
 #to parse SSP's in R
