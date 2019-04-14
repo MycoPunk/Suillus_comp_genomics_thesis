@@ -1,108 +1,42 @@
 ##this script gives code and instructions for obtaining and parsing SSP's from aa protein files. 
 ##in short:
 ##aa were procured from JGI Mycocosm, 
-##SignalP5 and TMHMM were run on the command line
-##TMHMM outoput was procesed in R using the following scripts 
+##SignalP was run on the command line
+##tmhmm on the "mature sequence" output form Signal P also on the command line
+##tmhmm outoput was procesed in R using the following scripts 
 ##aa files from tmhmm results were run in EffectorP using the online interface
 ##results from EffectorP were analysed in R using the following scripts
 
 
 ######
+
 #signalP is used to identify proteins with secretion signal peptides
-#This is a .pbs script that runs signalP5 and TMHMM
+##to run signalP:
+#cd /home/kennedyp/llofgren/COMP/SignalP
+#module load signalp4
 
-#!/bin/bash -l 
-#PBS -l walltime=12:00:00,mem=62gb,nodes=1:ppn=20
-#PBS -m abe 
-#PBS -M llofgren@umn.edu
+##note, the -m tag is what then gets fed into TMHMM. This gives you fasta fiels for the peptides that have SP's, 
+##but removes the SP itself from the peptide. This is a good thing, because TMHMM produces false positives when it encounters transmembrane helix's
 
-cd /home/kennedyp/llofgren/COMP/SignalP
+#signalp -t euk -m Rhives1_signalP_mature.fasta -v -l logfile1.txt Rhives1_wo_stops.fasta > Rhives1_signalP.csv
 
-#RUN SIGNALP
-module load signalp/5.0
+######
 
-signalp -fasta Suivar1_wo_stops.fasta -format short -mature
-signalp -fasta Suitom1_wo_stops.fasta -format short -mature
-signalp -fasta Suisub1_wo_stops.fasta -format short -mature
-signalp -fasta Suisu1_wo_stops.fasta -format short -mature
-signalp -fasta Suipla1_wo_stops.fasta -format short -mature
-signalp -fasta Suipic1_wo_stops.fasta -format short -mature
-signalp -fasta Suipal1_wo_stops.fasta -format short -mature
-signalp -fasta Suiocc1_wo_stops.fasta -format short -mature
-signalp -fasta Suilu4_wo_stops.fasta -format short -mature
-signalp -fasta Suilak1_wo_stops.fasta -format short -mature
-signalp -fasta Suihi1_wo_stops.fasta -format short -mature
-signalp -fasta Suigr1_wo_stops.fasta -format short -mature
-signalp -fasta Suidec1_wo_stops.fasta -format short -mature
-signalp -fasta Suicot1_wo_stops.fasta -format short -mature
-signalp -fasta Suicli1_wo_stops.fasta -format short -mature
-signalp -fasta Suibr2_wo_stops.fasta -format short -mature
-signalp -fasta Suibov1_wo_stops.fasta -format short -mature
-signalp -fasta Suiamp1_wo_stops.fasta -format short -mature
-signalp -fasta Suiame1_wo_stops.fasta -format short -mature
+##tmhmm is used to look at the number of TM domains, we want the ones with zero. 
+##to run tmhmm:
+#module load tmhmm
 
+##copy these the first time
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/TMHMM
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/TMHMM
 
-signalp -fasta Rhivul1_wo_stops.fasta -format short -mature
-signalp -fasta Rhitru1_wo_stops.fasta -format short -mature
-signalp -fasta Amamu1_wo_stops.fasta -format short -mature
-signalp -fasta Hebcy2_wo_stops.fasta -format short -mature
-signalp -fasta Lacbi2_wo_stops.fasta -format short -mature
-signalp -fasta Paxin1_wo_stops.fasta -format short -mature
-signalp -fasta Pilcr1_wo_stops.fasta -format short -mature
-signalp -fasta Pismi1_wo_stops.fasta -format short -mature
-signalp -fasta Sclci1_wo_stops.fasta -format short -mature
+##Then you can create a variable holding the path to the program:
+#DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
+#FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
 
+##run tmhmm in the format: 
+#cat Suivar1_GPCRs_from_GPCRHMM.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_output.txt
 
-#RUN TMHMM
-#available as a module at MSI, but there's an error with the install on their end. The first time, you have to copy a file from the install into your destination folder
-
-module load tmhmm
-
-#copy these the first time
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/SignalP
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/SignalP
-
-#Then you can create a variable holding the path to the program:
-DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
-FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
-
-#run tmhmm in the format: 
-#cat my.fasta | ${DECODE} -f /my/destination_path/TMHMM2.0.options
-#-modelfile /my/destination_path/TMHMM2.0.model -N1 -PrintNumbers
-#-PrintScore -PrintStat | perl ${FORMAT} > formatted_output.txt
-
-cat Suivar1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_SSP_output.txt
-cat Suitom1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suitom1_TMHMM_SSP_output.txt
-cat Suisub1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisub1_TMHMM_SSP_output.txt
-cat Suisu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisu1_TMHMM_SSP_output.txt
-cat Suipla1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipla1_TMHMM_SSP_output.txt
-cat Suipic1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipic1_TMHMM_SSP_output.txt
-cat Suipal1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipal1_TMHMM_SSP_output.txt
-cat Suiocc1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiocc1_TMHMM_SSP_output.txt
-cat Suilu4_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilu4_TMHMM_SSP_output.txt
-cat Suilak1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilak1_TMHMM_SSP_output.txt
-cat Suihi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suihi1_TMHMM_SSP_output.txt
-cat Suigr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suigr1_TMHMM_SSP_output.txt
-cat Suidec1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suidec1_TMHMM_SSP_output.txt
-cat Suicot1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicot1_TMHMM_SSP_output.txt
-cat Suicli1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicli1_TMHMM_SSP_output.txt
-cat Suibr2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibr2_TMHMM_SSP_output.txt
-cat Suibov1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibov1_TMHMM_SSP_output.txt
-cat Suiamp1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiamp1_TMHMM_SSP_output.txt
-cat Suiame1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiame1_TMHMM_SSP_output.txt
-
-
-cat Rhivul1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhivul1_TMHMM_SSP_output.txt
-cat Rhitru1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhitru1_TMHMM_SSP_output.txt
-cat Amamu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Amamu1_TMHMM_SSP_output.txt
-cat Hebcy2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Hebcy2_TMHMM_SSP_output.txt
-cat Lacbi2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Lacbi2_TMHMM_SSP_output.txt
-cat Paxin1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Paxin1_TMHMM_SSP_output.txt
-cat Pilcr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pilcr1_TMHMM_SSP_output.txt
-cat Pismi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pismi1_TMHMM_SSP_output.txt
-cat Sclci1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Sclci1_TMHMM_SSP_output.txt
-
-#end .pbs script is here 
 ######
 
 #to parse SSP's in R
@@ -110,7 +44,9 @@ cat Sclci1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/Sig
 #load libraries
 library("seqinr")
 library("data.table")
+library("stringr")
 
+options(stringsAsFactors = FALSE)
 setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 #read in the input files
 Suivar1_TMHMM<- data.frame(read.csv("Suivar1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
@@ -371,6 +307,7 @@ Pilcr1_TMHMM_no_TMD_300<- Pilcr1_df.num[Pilcr1_df.num$V1 < 300, ]
 Pismi1_TMHMM_no_TMD_300<- Pismi1_df.num[Pismi1_df.num$V1 < 300, ]
 Sclci1_TMHMM_no_TMD_300<- Sclci1_df.num[Sclci1_df.num$V1 < 300, ]
 
+
 #get #SSP's per genome
 #get summary numbers for each of these and attach them to the previous output file. 
 Suivar1<- nrow(Suivar1_TMHMM_no_TMD_300)
@@ -431,7 +368,7 @@ totals.2<- data.frame(cbind(Suivar1,
                             Pilcr1,
                             Pismi1,
                             Sclci1),
-                      row.names = "#SSPs_signalP,TMHMM,lt_300aa")
+                      row.names = "#SSPs")
 totals.2[1,]
 
 #write out totals to a file
@@ -512,10 +449,9 @@ isolate_ID <- function(in_df) {
 }
 
 
-  
 #run function to isolate IDs  
 Suivar1_subset <- data.frame(substr(Suivar1_TMHMM_no_TMD_300$X1, 3,nchar(Suivar1_TMHMM_no_TMD_300$X1)))
-Suivar1.2_subset<- isolate_ID(Suivar1_subset) 
+Suivar1.2_subset<- isolate_ID(Suivar1_subset)  
 Suivar1.3_subset<- data.frame(lapply(Suivar1.2_subset, gsub, pattern=' ', replacement=''))
 
 Suitom1_subset <- data.frame(substr(Suitom1_TMHMM_no_TMD_300$X1, 3,nchar(Suitom1_TMHMM_no_TMD_300$X1)))
@@ -626,6 +562,39 @@ Pismi1.3_subset<- data.frame(lapply(Pismi1.2_subset, gsub, pattern=' ', replacem
 Sclci1_subset <- data.frame(substr(Sclci1_TMHMM_no_TMD_300$X1, 3,nchar(Sclci1_TMHMM_no_TMD_300$X1)))
 Sclci1.2_subset<- isolate_ID(Sclci1_subset) 
 Sclci1.3_subset<- data.frame(lapply(Sclci1.2_subset, gsub, pattern=' ', replacement=''))
+
+
+#change all "|" to "_" in the input files
+names(Suivar1_in)<-lapply(names(Suivar1_in), gsub, pattern="\\|", replacement='_')
+names(Suitom1_in)<-lapply(names(Suitom1_in), gsub, pattern="\\|", replacement='_')
+names(Suisub1_in)<-lapply(names(Suisub1_in), gsub, pattern="\\|", replacement='_')
+names(Suisu1_in)<-lapply(names(Suisu1_in), gsub, pattern="\\|", replacement='_')
+names(Suipla1_in)<-lapply(names(Suipla1_in), gsub, pattern="\\|", replacement='_')
+names(Suipic1_in)<-lapply(names(Suipic1_in), gsub, pattern="\\|", replacement='_')
+names(Suipal1_in)<-lapply(names(Suipal1_in), gsub, pattern="\\|", replacement='_')
+names(Suiocc1_in)<-lapply(names(Suiocc1_in), gsub, pattern="\\|", replacement='_')
+names(Suilu4_in)<-lapply(names(Suilu4_in), gsub, pattern="\\|", replacement='_')
+names(Suilak1_in)<-lapply(names(Suilak1_in), gsub, pattern="\\|", replacement='_')
+names(Suihi1_in)<-lapply(names(Suihi1_in), gsub, pattern="\\|", replacement='_')
+names(Suigr1_in)<-lapply(names(Suigr1_in), gsub, pattern="\\|", replacement='_')
+names(Suidec1_in)<-lapply(names(Suidec1_in), gsub, pattern="\\|", replacement='_')
+names(Suicot1_in)<-lapply(names(Suicot1_in), gsub, pattern="\\|", replacement='_')
+names(Suicli1_in)<-lapply(names(Suicli1_in), gsub, pattern="\\|", replacement='_')
+names(Suibr2_in)<-lapply(names(Suibr2_in), gsub, pattern="\\|", replacement='_')
+names(Suibov1_in)<-lapply(names(Suibov1_in), gsub, pattern="\\|", replacement='_')
+names(Suiamp1_in)<-lapply(names(Suiamp1_in), gsub, pattern="\\|", replacement='_')
+names(Suiame1_in)<-lapply(names(Suiame1_in), gsub, pattern="\\|", replacement='_')
+
+names(Rhivul1_in)<-lapply(names(Rhivul1_in), gsub, pattern="\\|", replacement='_')
+names(Rhitru1_in)<-lapply(names(Rhitru1_in), gsub, pattern="\\|", replacement='_')
+names(Amamu1_in)<-lapply(names(Amamu1_in), gsub, pattern="\\|", replacement='_')
+names(Hebcy2_in)<-lapply(names(Hebcy2_in), gsub, pattern="\\|", replacement='_')
+names(Lacbi2_in)<-lapply(names(Lacbi2_in), gsub, pattern="\\|", replacement='_')
+names(Paxin1_in)<-lapply(names(Paxin1_in), gsub, pattern="\\|", replacement='_')
+names(Pilcr1_in)<-lapply(names(Pilcr1_in), gsub, pattern="\\|", replacement='_')
+names(Pismi1_in)<-lapply(names(Pismi1_in), gsub, pattern="\\|", replacement='_')
+names(Sclci1_in)<-lapply(names(Sclci1_in), gsub, pattern="\\|", replacement='_')
+
 
 
 #get fastas of only positive hits for EffectorP analysis 
@@ -830,7 +799,7 @@ total_effectors<- data.frame(cbind(Suivar1,
                                    Pilcr1,
                                    Pismi1,
                                    Sclci1),
-                             row.names = "n_putative_effectors_from_EffectorP")
+                             row.names = "n_effectors_from_EffectorP")
 
 
 
@@ -894,7 +863,7 @@ total_SSPs<- data.frame(cbind(Suivar1,
                             Pilcr1,
                             Pismi1,
                             Sclci1),
-                      row.names = "#SSPs_signalP,TMHMM,lt_300aa")
+                      row.names = "n_SSPs_signalP_TMHMM_lt_300aa")
 
 
 #Proteins per genome
@@ -957,11 +926,12 @@ total_proteins<-data.frame(cbind(Suivar1,
                                  Pilcr1,
                                  Pismi1,
                                  Sclci1),
-                           row.names = "n_putative_proteins_from_gene_cat")  
+                           row.names = "n_proteins_from_gene_cat")  
 
 #bind results and transform
 results<- rbind(total_proteins[1,], total_SSPs[1,], total_effectors[1,])
 results.1<- t(results)
+
 
 #get % SSP's out of total genes
 percent_SSPs_out_of_total_genes<- (results.1[,2] / results.1[,1])*100
@@ -976,14 +946,12 @@ percent_effectors_out_of_SSPs<-signif(percent_effectors_out_of_SSPs, digits = 4)
 #slap it together
 results_with_percentages<- cbind(results.1, percent_SSPs_out_of_total_genes, percent_effectors_out_of_total_genes, percent_effectors_out_of_SSPs)
   
-
 #write it up
-write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals.csv")
+write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals_SP5.csv")
 
 
 #read in genome size file and run stats for table
 genome_size_df<- read.csv("genome_size_data.csv")
-
 
 
 #split the two data categories for genome size and get stats for each
@@ -1008,7 +976,7 @@ shapiro.test(Other_genome_size$genome_size)
 
 #test for equal variance 
 var.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size)
-#variance is not sif. different, but can't trust becasue not nomal, be conservatice and use unequal var in test
+#variance is not sif. different, but can't trust becasue not nomal, be conservative and use unequal var in test
 
 #t-test 
 t.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size, var.equal = FALSE)
@@ -1028,80 +996,81 @@ Suillus_ssps[] <- lapply(Suillus_ssps, function(x) {
 })
 sapply(Suillus_ssps, class)
 
+class(Suillus_ssps$n_proteins_from_gene_cat)
+
 #and the other one too...
 Other_ssps[] <- lapply(Other_ssps, function(x) {
   if(is.character(x)) as.numeric(as.character(x)) else x
 })
 sapply(Other_ssps, class)
 
-Suillus_n_prot_mean<- mean(Suillus_ssps$n_putative_proteins_from_gene_cat)
-Suillus_n_prot_SD<- sd(Suillus_ssps$n_putative_proteins_from_gene_cat)
-Suillus_n_prot_SE<- std(Suillus_ssps$n_putative_proteins_from_gene_cat)
+Suillus_n_prot_mean<- mean(Suillus_ssps$n_proteins_from_gene_cat)
+Suillus_n_prot_SD<- sd(Suillus_ssps$n_proteins_from_gene_cat)
+Suillus_n_prot_SE<- std(Suillus_ssps$n_proteins_from_gene_cat)
 
-Other_n_prot_mean<- mean(Other_ssps$n_putative_proteins_from_gene_cat)
-Other_n_prot_SD<- sd(Other_ssps$n_putative_proteins_from_gene_cat)
-Other_n_prot_SE<- std(Other_ssps$n_putative_proteins_from_gene_cat)
+Other_n_prot_mean<- mean(Other_ssps$n_proteins_from_gene_cat)
+Other_n_prot_SD<- sd(Other_ssps$n_proteins_from_gene_cat)
+Other_n_prot_SE<- std(Other_ssps$n_proteins_from_gene_cat)
 
 
 #test normality 
-shapiro.test(Suillus_ssps$n_putative_proteins_from_gene_ca)
+shapiro.test(Suillus_ssps$n_proteins_from_gene_ca)
 #normal
-shapiro.test(Other_ssps$n_putative_proteins_from_gene_ca)
+shapiro.test(Other_ssps$n_proteins_from_gene_ca)
 #normal
 
 #test for equal variance 
-var.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat)
-#variance is not sif. different 
+var.test(Suillus_ssps$n_proteins_from_gene_cat, Other_ssps$n_proteins_from_gene_cat)
+#variance is sif. different 
 
 #t-test 
-t.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat, var.equal = TRUE)
+t.test(Suillus_ssps$n_proteins_from_gene_cat, Other_ssps$n_proteins_from_gene_cat, var.equal = FALSE)
 
-
+mean(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #get stats for SSP's 
-Suillus_ssp_mean<- mean(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Suillus_ssp_SD<- sd(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Suillus_ssp_SE<- std(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Suillus_ssp_mean<- mean(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Suillus_ssp_SD<- sd(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Suillus_ssp_SE<- std(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 
-Other_ssp_mean<- mean(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Other_ssp_SD<- sd(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Other_ssp_SE<- std(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Other_ssp_mean<- mean(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Other_ssp_SD<- sd(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Other_ssp_SE<- std(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 
 #test normality 
-shapiro.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+shapiro.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #normal-ish
-shapiro.test(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+shapiro.test(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #normal
 
 #test for equal variance 
-var.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+var.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa, Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #variance is not sif. different 
 
 #t-test 
-t.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa, var.equal = TRUE)
-
-
+t.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa, Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa, var.equal = TRUE)
+#not significantly different
 
 #get stats for effectors
-Suillus_effectors_mean<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
-Suillus_effectors_SD<- sd(Suillus_ssps$n_putative_effectors_from_EffectorP)
-Suillus_effectors_SE<- std(Suillus_ssps$n_putative_effectors_from_EffectorP)
+Suillus_effectors_mean<- mean(Suillus_ssps$n_effectors_from_EffectorP)
+Suillus_effectors_SD<- sd(Suillus_ssps$n_effectors_from_EffectorP)
+Suillus_effectors_SE<- std(Suillus_ssps$n_effectors_from_EffectorP)
 
-Other_effectors_mean<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
-Other_effectors_SD<- sd(Other_ssps$n_putative_effectors_from_EffectorP)
-Other_effectors_SE<- std(Other_ssps$n_putative_effectors_from_EffectorP)
+Other_effectors_mean<- mean(Other_ssps$n_effectors_from_EffectorP)
+Other_effectors_SD<- sd(Other_ssps$n_effectors_from_EffectorP)
+Other_effectors_SE<- std(Other_ssps$n_effectors_from_EffectorP)
 
 #test normality 
-shapiro.test(Suillus_ssps$n_putative_effectors_from_EffectorP)
-#not normal
-shapiro.test(Other_ssps$n_putative_effectors_from_EffectorP)
-#not normal
+shapiro.test(Suillus_ssps$n_effectors_from_EffectorP)
+#normal
+shapiro.test(Other_ssps$n_effectors_from_EffectorP)
+#normal
 
 #test for equal variance 
-var.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP)
-#variance is not sif. different, but we can't trust it becaseu it's not normal, use conservatie var = FALSE in test
+var.test(Suillus_ssps$n_effectors_from_EffectorP, Other_ssps$n_effectors_from_EffectorP)
+#variance is not sif. different, and normal, use conservatie var = TRUE in test
 
 #t-test 
-t.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP, var.equal = FALSE)
+t.test(Suillus_ssps$n_effectors_from_EffectorP, Other_ssps$n_effectors_from_EffectorP, var.equal = TRUE)
 #not different
 
 
@@ -1109,30 +1078,94 @@ t.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_e
 #to do this, upload the outout fasta files of SSP's and run them in orthofinder. 
 ortho_finder_SSP_results<- read.table("Statistics_PerSpecies_all_ECM.csv", sep = ",", row.names = 1, header=TRUE)
 
+
 #the perninant info: 
 SSP_vs_SSSP1<- ortho_finder_SSP_results[1:3,]
 SSP_vs_SSSP<- t(SSP_vs_SSSP1)
 
-
+View(SSP_vs_SSSP)
 #get percent SSSP's of SSP's
 percent_SSPs_out_of_SSSPs<- (100*(SSP_vs_SSSP[,3]) / SSP_vs_SSSP[,1])
                             
 percent_SSPs_out_of_SSSPs<- data.frame(signif(percent_SSPs_out_of_SSSPs, digits = 3))
 
 
+#pull out row names to set groups 
+names.list<- row.names(percent_SSPs_out_of_SSSPs)
+percent_SSPs_out_of_SSSPs.2<- cbind(percent_SSPs_out_of_SSSPs, names.list)
+
+Suillus_ssps_vs_sssps<-data.frame(percent_SSPs_out_of_SSSPs.2[ grep("Sui", percent_SSPs_out_of_SSSPs.2[,2],), ])
+Suillus_ssps_vs_sssps<- Suillus_ssps_vs_sssps[,1]
+
+Other_ssps_vs_sssps<- data.frame(percent_SSPs_out_of_SSSPs.2[ grep("Sui", percent_SSPs_out_of_SSSPs.2[,2], invert = TRUE), ])
+Other_ssps_vs_sssps<- Other_ssps_vs_sssps[,1]
+
+#plot the above 
+groups<- c("Suillus", "Other ECM")
+boxplot(Suillus_ssps_vs_sssps, Other_ssps_vs_sssps, names = groups, ylab = "% SSSPs of SSPs")
+
+
+#SSPs vs n prot
+names.list<- row.names(SSP_vs_SSSP)
+SSP_vs_SSSP2<- data.frame(cbind(SSP_vs_SSSP, names.list))
+SSP_vs_SSSP_raw_Suillus<-data.frame(SSP_vs_SSSP2[ grep("Sui", SSP_vs_SSSP2[,4],), ])
+SSP_vs_SSSP_raw_Suillus<- SSP_vs_SSSP_raw_Suillus[,1:3]
+SSP_vs_SSSP_raw_Other<-data.frame(SSP_vs_SSSP2[ grep("Sui", SSP_vs_SSSP2[,4], invert = TRUE), ])
+SSP_vs_SSSP_raw_Other<- SSP_vs_SSSP_raw_Other[,1:3]
+
+#ugh. turn them numeric again
+SSP_vs_SSSP_raw_Other[] <- lapply(SSP_vs_SSSP_raw_Other, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(SSP_vs_SSSP_raw_Other, class)
+
+SSP_vs_SSSP_raw_Suillus[] <- lapply(SSP_vs_SSSP_raw_Suillus, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(SSP_vs_SSSP_raw_Suillus, class)
+
+
+#get number SSP's as a percentage of total proteins 
+Suillus_ssps[,1] #total Suillus prot
+Other_ssps[,1] #total Other ECM prot
+
+Suillus_ssps[,2] #total Suillus SSPs
+Other_ssps[,2] #total Other ECM SSPs
+
+percent_SSPs_out_of_prot_Suillus<- (100*Suillus_ssps[,2] / Suillus_ssps[,1])
+percent_SSPs_out_of_prot_Suillus<- data.frame(signif(percent_SSPs_out_of_prot_Suillus, digits = 3))
+
+percent_SSPs_out_of_prot_Other<- (100*Other_ssps[,2] / Other_ssps[,1])
+percent_SSPs_out_of_prot_Other<- data.frame(signif(percent_SSPs_out_of_prot_Other, digits = 3))
+
+#strip
+Suillus<- cbind(percent_SSPs_out_of_prot_Suillus, rep("a_Suillus", length(percent_SSPs_out_of_prot_Suillus)))
+colnames(Suillus)<- c("%", "group")
+
+Other_ECM<- cbind(percent_SSPs_out_of_prot_Other, rep("b_Other", length(percent_SSPs_out_of_prot_Other)))
+colnames(Other_ECM)<- c("%", "group")
+
+SSPs_out_of_prot_df<- data.frame(rbind(Suillus, Other_ECM))
+
+
 
 
 #######START HERE WITH GRAPHS######## 
+##color pallet:"#4F5C69", "#838558", "#A49C4C","#E4D9AC", "#F9F1D2", "#FBE898", "#FFCC6E", "#E6A871"
+#Suillus:
+#Other: 
+
+
 ######### % SSP's out of total proteins 
-med1= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "a_Suillus"])
-med2= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "b_Other"])
-par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
-stripchart(SSPs_out_of_prot_df$`%` ~ SSPs_out_of_prot_df$group,
+med1= mean(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"])
+med2= mean(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"])
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0), las=1)
+stripchart(SSPs_out_of_prot_df$X. ~ SSPs_out_of_prot_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
-           pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           pch = 19, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
            ylim=c(0,4), 
            ylab = "% SSPs out of all proteins", 
@@ -1145,7 +1178,24 @@ segments(x0 = .7, y0 =  med1, x1 = 1.3, y1=med1, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med2, x1 = 2.3, y1=med2, lwd = 2, col = "black" )
 #add boxplot around the data? 
   #boxplot(`%` ~ group, data = SSPs_out_of_SSSPs_df, add=TRUE, range=0, whisklty = 0, staplelty = 0)
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
 
+
+
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"])
+shapiro.test(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]))
+#variance is equal
+
+#t-test 
+t.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]), var.equal = FALSE)
+#not different
 
 
 
@@ -1171,10 +1221,10 @@ stripchart(SSPs_out_of_SSSPs_df$`%` ~ SSPs_out_of_SSSPs_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 19, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,70), 
+           ylim=c(0,80), 
            ylab = "% SSSPs out of SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1183,11 +1233,27 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "b"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_Suillus"])
+shapiro.test(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "b_Other"])
+#normal, can't reject null asum. that dist is normal
+
+#test for equal variance 
+var.test(as.numeric(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "b_Other"]))
+#variance is not equal
+
+#t-test 
+t.test((as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
+#not different
+
 
 
 
 #######Effectors as a percentage of SSP's########
-
 percent_effector_Suillus<- as.numeric(Suillus_ssps$percent_effectors_out_of_SSPs)
 percent_effector_Other<- as.numeric(Other_ssps$percent_effectors_out_of_SSPs)
 
@@ -1197,20 +1263,23 @@ colnames(Suillus3)<- c("%", "group")
 Other_ECM3<- cbind(percent_effector_Other, rep("b_Other", length(percent_effector_Other)))
 colnames(Other_ECM3)<- c("%", "group")
 
-effectors_out_of_SSSPs_df<- data.frame(rbind(Suillus3, Other_ECM3))
+effectors_out_of_SSSPs_df<- as.data.frame(rbind(Suillus3, Other_ECM3))
 
 
 med3= mean(Suillus_ssps$percent_effectors_out_of_SSPs)
 med4= mean(Other_ssps$percent_effectors_out_of_SSPs)
+#combine the data
+
+
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
-stripchart(effectors_out_of_SSSPs_df$X. ~ effectors_out_of_SSSPs_df$group,
+stripchart(effectors_out_of_SSSPs_df$`%` ~ effectors_out_of_SSSPs_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 19, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,50), 
+           ylim=c(0,60), 
            ylab = "% Effectors out of SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1219,6 +1288,67 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "a_Suillus"])
+#not normal
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(effectors_out_of_SSSPs_df$`%` [effectors_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"]))
+#variance is margenally equal
+
+#t-test 
+t.test((as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
+#not different
+
+#transform data to meet normality assumptions
+effectors_out_of_SSSPs_df$logX1<- log(as.numeric(effectors_out_of_SSSPs_df$`%`))
+#re-test normality 
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(effectors_out_of_SSSPs_df$logX1 [effectors_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"]), var.equal = TRUE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(Suillus_ssps$percent_effectors_out_of_SSPs))
+med4= mean(log(Other_ssps$percent_effectors_out_of_SSPs))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(effectors_out_of_SSSPs_df$logX1 ~ effectors_out_of_SSSPs_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log % Effectors out of SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
 
 
 
@@ -1245,10 +1375,10 @@ stripchart(SSP_df$X1 ~ SSP_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,550), 
+           ylim=c(0,650), 
            ylab = "SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1257,7 +1387,62 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
 
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSP_df$X1) [SSP_df$X2 == "a_Suillus"])
+#not quite normal
+
+shapiro.test(as.numeric(SSP_df$X1) [SSP_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(SSSP_df$X1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#transform data to meet normality assumptions
+SSP_df$logX1<- log(as.numeric(SSP_df$X1))
+#re-test normality 
+shapiro.test(as.numeric(SSP_df$logX1) [SSP_df$X2 == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(SSP_df$logX1 [SSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(SSP_df$logX1) [SSP_df$X2 == "a_Suillus"]), (as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"]), var.equal = TRUE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(SSPs_Suillus))
+med4= mean(log(SSPs_Other))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSP_df$logX1 ~ SSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
 
 
 ###### form Raw data (no %): SSSP's #######
@@ -1277,10 +1462,10 @@ stripchart(SSSP_df$X1 ~ SSSP_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,360), 
+           ylim=c(0,460), 
            ylab = "SSSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1289,26 +1474,87 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "b"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSSP_df$X1) [SSSP_df$X2 == "a_Suillus"])
+#not normal
+
+shapiro.test(as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(SSSP_df$X1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#t-test 
+t.test((as.numeric(SSSP_df$X1) [SSSP_df$X2 == "a_Suillus"]), (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]), var.equal = FALSE)
+#not different
+
+#transform data to meet normality assumptions
+SSSP_df$logX1<- log(as.numeric(SSSP_df$X1))
+#re-test normality 
+shapiro.test(as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(SSSP_df$logX1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#t-test 
+t.test((as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "a_Suillus"]), (as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"]), var.equal = FALSE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(SSSPs_Suillus))
+med4= mean(log(SSSPs_Other))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSSP_df$logX1 ~ SSSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log SSSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
 
 ###### form Raw data (no %): Effectors #######
-effector_Suillus<- as.numeric(Suillus_ssps$n_putative_effectors_from_EffectorP)
-effector_Suillus_df<- data.frame(cbind(Suillus_ssps$n_putative_effectors_from_EffectorP, rep("a_Suillus", length(Suillus_ssps$n_putative_effectors_from_EffectorP))))
+effector_Suillus<- as.numeric(Suillus_ssps$n_effectors_from_EffectorP)
+effector_Suillus_df<- data.frame(cbind(Suillus_ssps$n_effectors_from_EffectorP, rep("a_Suillus", length(Suillus_ssps$n_effectors_from_EffectorP))))
 
-effector_Other<- as.numeric(Other_ssps$n_putative_effectors_from_EffectorP)
-effector_Other_df<- data.frame(cbind(Other_ssps$n_putative_effectors_from_EffectorP, rep("b_Other", length(Other_ssps$n_putative_effectors_from_EffectorP))))
+effector_Other<- as.numeric(Other_ssps$n_effectors_from_EffectorP)
+effector_Other_df<- data.frame(cbind(Other_ssps$n_effectors_from_EffectorP, rep("b_Other", length(Other_ssps$n_effectors_from_EffectorP))))
 
 effector_df<- data.frame(rbind(effector_Suillus_df, effector_Other_df))
 
-med3<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
-med4<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
+med3<- mean(Suillus_ssps$n_effectors_from_EffectorP)
+med4<- mean(Other_ssps$n_effectors_from_EffectorP)
 
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
 stripchart(effector_df$X1 ~ effector_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
            ylim=c(0,280), 
            ylab = "Effectors", 
@@ -1319,3 +1565,35 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(effector_df$X1) [effector_df$X2 == "a_Suillus"])
+#normal
+
+shapiro.test(as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(effector_df$X1 [effector_df$X2 == "a_Suillus"]), 
+         (as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(effector_df$X1) [effector_df$X2 == "a_Suillus"]), (as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"]), var.equal = TRUE)
+#not different
+
+
+
+################## analysis by Suillus host association ##################
+
+#Print the Suillus df and attach codes for host association 
+#write.csv(Suillus_ssps, file = "Suillus_ssps.csv")
+
+#read it back in 
+SSPs_coded_within_Suillus<- read.csv("SSPs_coded_within_Suillus.csv")
+View(SSPs_coded_within_Suillus)
+
+
+
