@@ -947,7 +947,7 @@ percent_effectors_out_of_SSPs<-signif(percent_effectors_out_of_SSPs, digits = 4)
 results_with_percentages<- cbind(results.1, percent_SSPs_out_of_total_genes, percent_effectors_out_of_total_genes, percent_effectors_out_of_SSPs)
   
 #write it up
-write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals_SP5.csv")
+#write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals_SP5.csv")
 
 
 #read in genome size file and run stats for table
@@ -1083,7 +1083,6 @@ ortho_finder_SSP_results<- read.table("Statistics_PerSpecies_all_ECM.csv", sep =
 SSP_vs_SSSP1<- ortho_finder_SSP_results[1:3,]
 SSP_vs_SSSP<- t(SSP_vs_SSSP1)
 
-View(SSP_vs_SSSP)
 #get percent SSSP's of SSP's
 percent_SSPs_out_of_SSSPs<- (100*(SSP_vs_SSSP[,3]) / SSP_vs_SSSP[,1])
                             
@@ -1197,6 +1196,21 @@ var.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Su
 t.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]), var.equal = FALSE)
 #not different
 
+std <- function(x) sd(x)/sqrt(length(x))
+
+#split df
+SSPs_out_of_prot_df_Suillus<- SSPs_out_of_prot_df[SSPs_out_of_prot_df$group == "a_Suillus",]
+SSPs_out_of_prot_df_Other<- SSPs_out_of_prot_df[SSPs_out_of_prot_df$group == "b_Other",]
+
+#get means
+mean_SSPs_out_of_prot_df_Suillus<- mean(SSPs_out_of_prot_df_Suillus$X.)
+mean_SSPs_out_of_prot_df_Other<- mean(SSPs_out_of_prot_df_Other$X.)
+
+#get standard error
+SSPs_out_of_prot_df_Suillus_SE<- std(SSPs_out_of_prot_df_Suillus$X.)  
+SSPs_out_of_prot_df_Other_SE<- std(SSPs_out_of_prot_df_Other$X.) 
+
+
 
 
 #######SSSP's as a percentage of SSP's########
@@ -1250,7 +1264,17 @@ var.test(as.numeric(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_S
 t.test((as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
 #not different
 
+#split df
+SSSPs_out_of_SSPs_df_Suillus<- SSPs_out_of_SSSPs_df[SSPs_out_of_SSSPs_df$group == "a_Suillus",]
+SSSPs_out_of_SSPs_df_Other<- SSPs_out_of_SSSPs_df[SSPs_out_of_SSSPs_df$group == "b_Other",]
 
+#get means
+mean_SSSPs_out_of_SSPs_df_Suillus<- mean(SSSPs_out_of_SSPs_df_Suillus$`%`)
+mean_SSSPs_out_of_SSPs_df_Other<- mean(SSSPs_out_of_SSPs_df_Other$`%`)
+
+#get standard error
+SSSPs_out_of_SSPs_df_Suillus_SE<- std(SSSPs_out_of_SSPs_df_Suillus$`%`)  
+SSSPs_out_of_SSPs_df_Other_SE<- std(SSSPs_out_of_SSPs_df_Other$`%`) 
 
 
 #######Effectors as a percentage of SSP's########
@@ -1348,9 +1372,19 @@ segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
 mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
 
+Suillus_ssps$percent_effectors_out_of_SSPs
 
+#split df
+effectors_out_of_SSSPs_Suillus<- Suillus_ssps[Suillus_ssps$group == "a_Suillus",]
+effectors_out_of_SSSPs_Suillus_Other<- Other_ssps[Other_ssps$group == "b_Other",]
 
+#get means
+mean_effectors_out_of_SSSPs_Suillus<- mean(Suillus_ssps$percent_effectors_out_of_SSPs)
+mean_effectors_out_of_SSSPs_Other<- mean(Other_ssps$percent_effectors_out_of_SSPs)
 
+#get standard error
+effectors_out_of_SSSPs_Suillus_SE<- std(Suillus_ssps$percent_effectors_out_of_SSPs)  
+effectors_out_of_SSSPs_Other_SE<- std(Other_ssps$percent_effectors_out_of_SSPs) 
 
 
 ##########same as above but with raw numbers rather than percentages############
@@ -1456,6 +1490,11 @@ SSSP_df<- data.frame(rbind(SSSPs_Suillus_df, SSSPs_Other_df))
 
 med3= mean(SSSPs_Suillus)
 med4= mean(SSSPs_Other)
+
+#get standard error
+SSSPs_Suillus_SE<- std(SSSPs_Suillus)  
+SSSPs_Other_SE<- std(SSSPs_Other) 
+
 
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
 stripchart(SSSP_df$X1 ~ SSSP_df$X2,
@@ -1583,17 +1622,6 @@ var.test(as.numeric(effector_df$X1 [effector_df$X2 == "a_Suillus"]),
 #t-test 
 t.test((as.numeric(effector_df$X1) [effector_df$X2 == "a_Suillus"]), (as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"]), var.equal = TRUE)
 #not different
-
-
-
-################## analysis by Suillus host association ##################
-
-#Print the Suillus df and attach codes for host association 
-#write.csv(Suillus_ssps, file = "Suillus_ssps.csv")
-
-#read it back in 
-SSPs_coded_within_Suillus<- read.csv("SSPs_coded_within_Suillus.csv")
-View(SSPs_coded_within_Suillus)
 
 
 
