@@ -14,9 +14,9 @@ setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 SSPs_coded_within_Suillus<- read.csv("SSPs_coded_within_Suillus.csv")
 
 #split the two data categories for the three groups and get stats for each 
-Red_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="Red",]
-White_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="White",]
-Larch_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="Larch",]
+Red_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="a_Red",]
+White_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="b_White",]
+Larch_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="c_Larch",]
 
 #means
 Red_genome_size_mean<- mean(Red_df$genome_size)
@@ -36,13 +36,11 @@ Larch_genome_size_SD<- sd(Larch_df$genome_size)
 Larch_genome_size_SE<- std(Larch_df$genome_size)  
 
 all_df<- rbind(Red_df, White_df, Larch_df)
-#test normality 
-shapiro.test(all_df$genome_size)
-#not normal, need to transform
 
 #build model
 genome_size_model <- lm(all_df$genome_size ~ all_df$group)
 
+#test normality and var
 par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
 plot(genome_size_model) #data is non normal with non constant variance
 par(mfrow = c(1,1)) #back to one image per page
@@ -85,10 +83,6 @@ White_prot_SE<- std(White_df$n_proteins_from_gene_cat)
 
 Larch_prot_SD<- sd(Larch_df$n_proteins_from_gene_cat)
 Larch_prot_SE<- std(Larch_df$n_proteins_from_gene_cat)  
-
-#test normality 
-shapiro.test(all_df$n_proteins_from_gene_cat)
-#normal
 
 #build model
 prot_model <- lm(all_df$n_proteins_from_gene_cat ~ all_df$group)
@@ -156,7 +150,7 @@ ssp_model2 <- lm(all_df$n_SSPs_signalP_TMHMM_lt_300aa_inv_square ~ all_df$group)
 par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
 plot(ssp_model2) #data is non normal with non constant variance
 par(mfrow = c(1,1)) #back to one image per page
-#looks better
+#looks kinda better
 
 #run anova
 summary(aov(ssp_model2))
@@ -255,4 +249,295 @@ summary(aov(effector_model2))
 #not significant
 
 
+##### percentages analysis #####
 
+
+#%SSPs out of all prot.
+#means
+Red_SSP_per_all_prot_mean<- mean(Red_df$percent_SSPs_out_of_total_genes)
+White_SSP_per_all_prot_mean<- mean(White_df$percent_SSPs_out_of_total_genes)
+Larch_SSP_per_all_prot_mean<- mean(Larch_df$percent_SSPs_out_of_total_genes)
+
+#SD and SE
+Red_SSP_per_all_prot_SD<- sd(Red_df$percent_SSPs_out_of_total_genes)
+Red_SSP_per_all_prot_SE<- std(Red_df$percent_SSPs_out_of_total_genes)  
+
+White_SSP_per_all_prot_SD<- sd(White_df$percent_SSPs_out_of_total_genes)
+White_SSP_per_all_prot_SE<- std(White_df$percent_SSPs_out_of_total_genes)  
+
+Larch_SSP_per_all_prot_SD<- sd(Larch_df$percent_SSPs_out_of_total_genes)
+Larch_SSP_per_all_prot_SE<- std(Larch_df$percent_SSPs_out_of_total_genes) 
+
+#build model
+SSP_per_all_prot_model <- lm(all_df$percent_SSPs_out_of_total_genes ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSP_per_all_prot_model) #data is non normal, variance looks ok-ish
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(SSP_per_all_prot_model, lambda = seq(-6,2,2)) #what does boxcox suggest?  
+powerTransform(SSP_per_all_prot_model) #how about powerTransform? # ^-2 is what's recommended 
+
+#transform
+all_df$percent_SSPs_out_of_total_genes_inv_square<- all_df$percent_SSPs_out_of_total_genes^(-2)
+
+#make new model
+SSP_per_all_prot_model2 <- lm(all_df$percent_SSPs_out_of_total_genes_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSP_per_all_prot_model2) #data looks better
+par(mfrow = c(1,1)) #back to one image per page
+#looks better
+
+#run anova
+summary(aov(SSP_per_all_prot_model2))
+#not significant
+
+
+#%SSSPs out of SSPs.
+#means
+Red_SSSP_per_SSP_mean<- mean(Red_df$percent_SSSPs_out_of_SSPs)
+White_SSSP_per_SSP_mean<- mean(White_df$percent_SSSPs_out_of_SSPs)
+Larch_SSSP_per_SSP_mean<- mean(Larch_df$percent_SSSPs_out_of_SSPs)
+
+#SD and SE
+Red_SSSP_per_SSP_SD<- sd(Red_df$percent_SSSPs_out_of_SSPs)
+Red_SSSP_per_SSP_SE<- std(Red_df$percent_SSSPs_out_of_SSPs)  
+
+White_SSSP_per_SSP_SD<- sd(White_df$percent_SSSPs_out_of_SSPs)
+White_SSSP_per_SSP_SE<- std(White_df$percent_SSSPs_out_of_SSPs)  
+
+Larch_SSSP_per_SSP_SD<- sd(Larch_df$percent_SSSPs_out_of_SSPs)
+Larch_SSSP_per_SSP_SE<- std(Larch_df$percent_SSSPs_out_of_SSPs) 
+
+#build model
+SSSP_per_SSP_model <- lm(all_df$percent_SSSPs_out_of_SSPs ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSSP_per_SSP_model) #data is non normal, variance looks pretty good
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(SSSP_per_SSP_model) #what does boxcox suggest?  
+powerTransform(SSSP_per_SSP_model) #recommended not to transform
+
+#run anova
+summary(aov(SSSP_per_SSP_model))
+#significant! 
+
+#what's different?
+sssp_aov2<- aov(SSSP_per_SSP_model)
+TukeyHSD(sssp_aov2)
+#red and larch are sig. different 
+
+
+#Effectors out of SSPs
+#means
+Red_effectors_out_of_SSP_mean<- mean(Red_df$percent_effectors_out_of_SSPs)
+White_effectors_out_of_SSP_mean<- mean(White_df$percent_effectors_out_of_SSPs)
+Larch_effectors_out_of_SSP_mean<- mean(Larch_df$percent_effectors_out_of_SSPs)
+
+#SD and SE
+Red_effectors_out_of_SSP_SD<- sd(Red_df$percent_effectors_out_of_SSPs)
+Red_effectors_out_of_SSP_SE<- std(Red_df$percent_effectors_out_of_SSPs)  
+
+White_effectors_out_of_SSP_SD<- sd(White_df$percent_effectors_out_of_SSPs)
+White_effectors_out_of_SSP_SE<- std(White_df$percent_effectors_out_of_SSPs)  
+
+Larch_effectors_out_of_SSP_SD<- sd(Larch_df$percent_effectors_out_of_SSPs)
+Larch_effectors_out_of_SSP_SE<- std(Larch_df$percent_effectors_out_of_SSPs) 
+
+#build model
+effectors_out_of_SSP_model <- lm(all_df$percent_effectors_out_of_SSPs ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effectors_out_of_SSP_model) #data is non normal, with non-constant variance 
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(effectors_out_of_SSP_model) #what does boxcox suggest?  
+powerTransform(effectors_out_of_SSP_model) #how about powerTransform? # ^-3 is what's recommended, but -2 is in range. 
+
+#transform
+all_df$percent_effectors_out_of_SSPs_inv_square<- all_df$percent_effectors_out_of_SSPs^(-2)
+
+#make new model
+effectors_out_of_SSP_model2 <- lm(all_df$percent_effectors_out_of_SSPs_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effectors_out_of_SSP_model2) #data looks better
+par(mfrow = c(1,1)) #back to one image per page
+#looks better enough 
+
+#run anova
+summary(aov(effectors_out_of_SSP_model2))
+#not significant
+
+
+######## plots start here ########
+#plot of n_SSPs
+
+#means from transformaton 
+Red_df_new<- all_df[all_df$group=="a_Red",]
+White_df_new<- all_df[all_df$group=="b_White",]
+Larch_df_new<- all_df[all_df$group=="c_Larch",]
+
+M_red<- mean(Red_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+M_white<- mean(White_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+M_larch<- mean(Larch_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_SSPs_signalP_TMHMM_lt_300aa_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,13E-06), 
+           ylab = expression(paste("SSPs"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+###plot of n SSSPs
+
+#means from transformaton 
+M_red<- mean(Red_df_new$n_SSSPs_inv_one)
+M_white<- mean(White_df_new$n_SSSPs_inv_one)
+M_larch<- mean(Larch_df_new$n_SSSPs_inv_one)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_SSSPs_inv_one ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,0.014), 
+           ylab = expression(paste("SSSPs"^-1)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "ab", "b"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot n effectors
+#means from transformaton 
+M_red<- mean(Red_df_new$n_effectors_from_EffectorP_inv_square)
+M_white<- mean(White_df_new$n_effectors_from_EffectorP_inv_square)
+M_larch<- mean(Larch_df_new$n_effectors_from_EffectorP_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_effectors_from_EffectorP_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,1.6E-04), 
+           ylab = expression(paste("Effectors"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot %SSPs out of total proteins
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_SSPs_out_of_total_genes_inv_square)
+M_white<- mean(White_df_new$percent_SSPs_out_of_total_genes_inv_square)
+M_larch<- mean(Larch_df_new$percent_SSPs_out_of_total_genes_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_SSPs_out_of_total_genes_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,.4), 
+           ylab = expression(paste("% SSPs out of all proteins"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot %SSSPs out of SSPs
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_SSSPs_out_of_SSPs)
+M_white<- mean(White_df_new$percent_SSSPs_out_of_SSPs)
+M_larch<- mean(Larch_df_new$percent_SSSPs_out_of_SSPs)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_SSSPs_out_of_SSPs ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,50), 
+           ylab = expression(paste("% SSSPs out of SSPs")), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "ab", "b"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot % Effectors out of SSPs
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_effectors_out_of_SSPs_inv_square)
+M_white<- mean(White_df_new$percent_effectors_out_of_SSPs_inv_square)
+M_larch<- mean(Larch_df_new$percent_effectors_out_of_SSPs_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_effectors_out_of_SSPs_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,.0016), 
+           ylab = expression(paste("% Effectors out of SSPs"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
