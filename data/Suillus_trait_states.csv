@@ -1,1 +1,22 @@
-
+﻿,,,,,tree
+Suiame1_GeneCatalog_proteins_20151214_aa,Suillus,americanus,Suiame1,White,"((Rhitru1_GeneCatalog_proteins_20180422.aa:0.139737,Rhivul1_GeneCatalog_proteins_20180423.aa:0.122953)0.884018:0.0304475,((Suipal1_GeneCatalog_proteins_20180813.aa:0.0820392,Suiamp1_GeneCatalog_proteins_20180421.aa:0.0766042)0.655198:0.0230856,(Suicli1_GeneCatalog_proteins_20180420.aa:0.0675837,((((Suibov1_GeneCatalog_proteins_20180813.aa:0.0661566,(Suivar1_GeneCatalog_proteins_20180923.aa:0.0288209,(Suitom1_GeneCatalog_proteins_20170729.aa:0.018229,Suihi1_GeneCatalog_proteins_20150416.aa:0.0218522)0.389197:0.0147787)0.783204:0.0364523)0.509989:0.0161524,((Suipic1_GeneCatalog_proteins_20160216.aa:0.0532778,Suidec1_GeneCatalog_proteins_20150904.aa:0.0426634)0.781539:0.038044,((Suisub1_GeneCatalog_proteins_20170827.aa:0.050624,(Suiame1_GeneCatalog_proteins_20151214.aa:0.0401779,Suisu1_GeneCatalog_proteins_20180325.aa:0.050162)0.350351:0.0121781)0.275435:0.00974037,Suicot1_GeneCatalog_proteins_20171209.aa:0.0601847)0.284129:0.0100687)0.144099:0.00751554)0.102849:0.00621042,(((Suilu4_GeneCatalog_proteins_20170628.aa:0.02578,Suiocc1_GeneCatalog_proteins_20180813.aa:0.0461372)0.485572:0.0146764,Suibr2_GeneCatalog_proteins_20150912.aa:0.0293103)0.72845:0.033298,(Suipla1_GeneCatalog_proteins_20181128.aa:0.0321315,Suigr1_GeneCatalog_proteins_20150504.aa:0.031755)0.717166:0.0246721)0.108768:0.00581755)0.369589:0.0139039,Suilak1_GeneCatalog_proteins_20180814.aa:0.0684574)0.40603:0.0145632)0.625416:0.0242209)0.884018:0.0304475);"
+Suiamp1_GeneCatalog_proteins_20180421_aa,Suillus,ampliporus,Suiamp1,Larch,
+Suibov1_GeneCatalog_proteins_20180813_aa,Suillus,bovinus,Suibov1,Red,
+Suibr2_GeneCatalog_proteins_20150912_aa,Suillus,brevipes,Suibr2,Red,
+Suicli1_GeneCatalog_proteins_20180420_aa,Suillus,clintonianus,Suicli1,Larch,
+Suicot1_GeneCatalog_proteins_20171209_aa,Suillus,cothurnatus,Suicot1,Red,
+Suipla1_GeneCatalog_proteins_20181128_aa,Suillus,placedus,Suipla1,White,
+Suidec1_GeneCatalog_proteins_20150904_aa,Suillus,decipiens,Suidec1,Red,
+Suigr1_GeneCatalog_proteins_20150504_aa,Suillus,granulatus,Suigr1,generalist,
+Suihi1_GeneCatalog_proteins_20150416_aa,Suillus,hirtellus,Suihi1,Red,
+Suilak1_GeneCatalog_proteins_20180814_aa,Suillus,lakei,Suilak1,Pseudotsuga,
+Suilu4_GeneCatalog_proteins_20170628_aa,Suillus,luteus,Suilu4,Red,
+Suiocc1_GeneCatalog_proteins_20180813_aa,Suillus,occidentalis,Suiocc1,Red,
+Suipal1_GeneCatalog_proteins_20180813_aa,Suillus,paluster,Suipal1,Larch,
+Suipic1_GeneCatalog_proteins_20160216_aa,Suillus,pictus,Suipic1,White,
+Suisu1_GeneCatalog_proteins_20180325_aa,Suillus,subalutaceus,Suisu1,Red,
+Suisub1_GeneCatalog_proteins_20170827_aa,Suillus,subaureus,Suisub1,generalist,
+Suitom1_GeneCatalog_proteins_20170729_aa,Suillus,tomentosus,Suitom1,Red,
+Suivar1_GeneCatalog_proteins_20180923_aa,Suillus,variegatus ,Suivar1,Red,
+Rhivul1_GeneCatalog_proteins_20180423_aa,Rhizopogon,vulgaris,Rhivul1,generalist,
+Rhitru1_GeneCatalog_proteins_20180422_aa,Rhizopogon,truncatus,Rhitru1,generalist,
