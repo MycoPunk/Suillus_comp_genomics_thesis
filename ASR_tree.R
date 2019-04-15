@@ -1,9 +1,12 @@
 #set directory
-setwd("~/Desktop/Chapter 3/ASR")
+setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 library(phytools)
 library(ape)
-
+options(stringsAsFactors = TRUE)
 #load tree wih branch lengths generate with STAG
+#note- there is a bug in this protram, where pies representing ancesteral state give an error for $ based identification.
+#if it does this, run the example annole script at the bottom of the page, and the pies start working again (I dono). 
+
 state_df<- read.csv("Suillus_trait_states.csv")
 
 #read in tree
@@ -12,8 +15,10 @@ phy<- read.tree(text = phy)
 
 plot.phylo(phy)
 
+
 #read in the data
 host_state_df <- data.frame(taxa=state_df$X, host_state=(state_df[,5]))
+
 
 x2<- host_state_df[,2] 
 x3<-setNames(host_state_df[,2],host_state_df[,1])
@@ -22,7 +27,7 @@ x3<-setNames(host_state_df[,2],host_state_df[,1])
 #need to make a simmap to connect chr states to tips
 phy2<-make.simmap(phy, x3)
 
-#link the host states 
+#link the host states - this can take a bit of time
 states<-getStates(phy2,"tips")
 states
 
@@ -45,7 +50,6 @@ nodelabels(node=1:tree$Nnode+Ntip(phy2),
 tiplabels(pie=to.matrix(states,sort(unique(states))),piecol=cols,cex=0.3)
 add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
                   y=-max(nodeHeights(phy2)),fsize=0.8)
-
 
 
 
@@ -72,31 +76,35 @@ pd<-summary(mtrees,plot=FALSE)
 pd
 
 
-
-data(anoletree)
-## this is just to pull out the tip states from the
-## data object - normally we would read this from file
-x<-getStates(anoletree,"tips")
-tree<-anoletree
-rm(anoletree)
-tree
-x
-plotTree(tree,type="fan",fsize=0.8,ftype="i")
-cols<-setNames(palette()[1:length(unique(x))],sort(unique(x)))
-tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
-add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
-                  y=-max(nodeHeights(tree)),fsize=0.8)
-
-fitER<-ace(x,tree,model="ER",type="discrete")
-fitER
-plotTree(tree,type="fan",fsize=0.8,ftype="i")
-nodelabels(node=1:tree$Nnode+Ntip(tree),
-           pie=fitER$lik.anc,piecol=cols,cex=0.5)
-tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
-add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
-                  y=-max(nodeHeights(tree)),fsize=0.8)
+par(mfrow = c(1,1)) #back to one image per page
 
 
-mtree<-make.simmap(tree,x,model="ER")
-mtree
-plot(mtree,cols,type="fan",fsize=0.8,ftype="i")
+# #example data for other trees you can build in this package
+
+# data(anoletree)
+# ## this is just to pull out the tip states from the
+# ## data object - normally we would read this from file
+# x<-getStates(anoletree,"tips")
+# tree<-anoletree
+# rm(anoletree)
+# tree
+# x
+# plotTree(tree,type="fan",fsize=0.8,ftype="i")
+# cols<-setNames(palette()[1:length(unique(x))],sort(unique(x)))
+# tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
+# add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
+#                   y=-max(nodeHeights(tree)),fsize=0.8)
+# 
+# fitER<-ace(x,tree,model="ER",type="discrete")
+# fitER
+# plotTree(tree,type="fan",fsize=0.8,ftype="i")
+# nodelabels(node=1:tree$Nnode+Ntip(tree),
+#            pie=fitER$lik.anc,piecol=cols,cex=0.5)
+# tiplabels(pie=to.matrix(x,sort(unique(x))),piecol=cols,cex=0.3)
+# add.simmap.legend(colors=cols,prompt=FALSE,x=0.9*par()$usr[1],
+#                   y=-max(nodeHeights(tree)),fsize=0.8)
+# 
+# 
+# mtree<-make.simmap(tree,x,model="ER")
+# mtree
+# plot(mtree,cols,type="fan",fsize=0.8,ftype="i")
