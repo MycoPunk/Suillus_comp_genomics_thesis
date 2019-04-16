@@ -1,5 +1,5 @@
 
-#data was generated using GPCRHMM
+#data was generated using fungal antiSMASH
 setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 
 #load packages 
