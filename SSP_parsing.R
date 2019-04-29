@@ -1,108 +1,42 @@
 ##this script gives code and instructions for obtaining and parsing SSP's from aa protein files. 
 ##in short:
 ##aa were procured from JGI Mycocosm, 
-##SignalP5 and TMHMM were run on the command line
-##TMHMM outoput was procesed in R using the following scripts 
+##SignalP was run on the command line
+##tmhmm on the "mature sequence" output form Signal P also on the command line
+##tmhmm outoput was procesed in R using the following scripts 
 ##aa files from tmhmm results were run in EffectorP using the online interface
 ##results from EffectorP were analysed in R using the following scripts
 
 
 ######
+
 #signalP is used to identify proteins with secretion signal peptides
-#This is a .pbs script that runs signalP5 and TMHMM
+##to run signalP:
+#cd /home/kennedyp/llofgren/COMP/SignalP
+#module load signalp4
 
-#!/bin/bash -l 
-#PBS -l walltime=12:00:00,mem=62gb,nodes=1:ppn=20
-#PBS -m abe 
-#PBS -M llofgren@umn.edu
+##note, the -m tag is what then gets fed into TMHMM. This gives you fasta fiels for the peptides that have SP's, 
+##but removes the SP itself from the peptide. This is a good thing, because TMHMM produces false positives when it encounters transmembrane helix's
 
-cd /home/kennedyp/llofgren/COMP/SignalP
+#signalp -t euk -m Rhives1_signalP_mature.fasta -v -l logfile1.txt Rhives1_wo_stops.fasta > Rhives1_signalP.csv
 
-#RUN SIGNALP
-module load signalp/5.0
+######
 
-signalp -fasta Suivar1_wo_stops.fasta -format short -mature
-signalp -fasta Suitom1_wo_stops.fasta -format short -mature
-signalp -fasta Suisub1_wo_stops.fasta -format short -mature
-signalp -fasta Suisu1_wo_stops.fasta -format short -mature
-signalp -fasta Suipla1_wo_stops.fasta -format short -mature
-signalp -fasta Suipic1_wo_stops.fasta -format short -mature
-signalp -fasta Suipal1_wo_stops.fasta -format short -mature
-signalp -fasta Suiocc1_wo_stops.fasta -format short -mature
-signalp -fasta Suilu4_wo_stops.fasta -format short -mature
-signalp -fasta Suilak1_wo_stops.fasta -format short -mature
-signalp -fasta Suihi1_wo_stops.fasta -format short -mature
-signalp -fasta Suigr1_wo_stops.fasta -format short -mature
-signalp -fasta Suidec1_wo_stops.fasta -format short -mature
-signalp -fasta Suicot1_wo_stops.fasta -format short -mature
-signalp -fasta Suicli1_wo_stops.fasta -format short -mature
-signalp -fasta Suibr2_wo_stops.fasta -format short -mature
-signalp -fasta Suibov1_wo_stops.fasta -format short -mature
-signalp -fasta Suiamp1_wo_stops.fasta -format short -mature
-signalp -fasta Suiame1_wo_stops.fasta -format short -mature
+##tmhmm is used to look at the number of TM domains, we want the ones with zero. 
+##to run tmhmm:
+#module load tmhmm
 
+##copy these the first time
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/TMHMM
+#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/TMHMM
 
-signalp -fasta Rhivul1_wo_stops.fasta -format short -mature
-signalp -fasta Rhitru1_wo_stops.fasta -format short -mature
-signalp -fasta Amamu1_wo_stops.fasta -format short -mature
-signalp -fasta Hebcy2_wo_stops.fasta -format short -mature
-signalp -fasta Lacbi2_wo_stops.fasta -format short -mature
-signalp -fasta Paxin1_wo_stops.fasta -format short -mature
-signalp -fasta Pilcr1_wo_stops.fasta -format short -mature
-signalp -fasta Pismi1_wo_stops.fasta -format short -mature
-signalp -fasta Sclci1_wo_stops.fasta -format short -mature
+##Then you can create a variable holding the path to the program:
+#DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
+#FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
 
+##run tmhmm in the format: 
+#cat Suivar1_GPCRs_from_GPCRHMM.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/TMHMM/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_output.txt
 
-#RUN TMHMM
-#available as a module at MSI, but there's an error with the install on their end. The first time, you have to copy a file from the install into your destination folder
-
-module load tmhmm
-
-#copy these the first time
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.model /home/kennedyp/llofgren/COMP/SignalP
-#cp /panfs/roc/msisoft/tmhmm/2.0c/lib/TMHMM2.0.options /home/kennedyp/llofgren/COMP/SignalP
-
-#Then you can create a variable holding the path to the program:
-DECODE="/panfs/roc/msisoft/tmhmm/2.0c/bin/decodeanhmm"
-FORMAT="/panfs/roc/msisoft/tmhmm/2.0c/bin/tmhmmformat.pl"
-
-#run tmhmm in the format: 
-#cat my.fasta | ${DECODE} -f /my/destination_path/TMHMM2.0.options
-#-modelfile /my/destination_path/TMHMM2.0.model -N1 -PrintNumbers
-#-PrintScore -PrintStat | perl ${FORMAT} > formatted_output.txt
-
-cat Suivar1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suivar1_TMHMM_SSP_output.txt
-cat Suitom1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suitom1_TMHMM_SSP_output.txt
-cat Suisub1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisub1_TMHMM_SSP_output.txt
-cat Suisu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suisu1_TMHMM_SSP_output.txt
-cat Suipla1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipla1_TMHMM_SSP_output.txt
-cat Suipic1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipic1_TMHMM_SSP_output.txt
-cat Suipal1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suipal1_TMHMM_SSP_output.txt
-cat Suiocc1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiocc1_TMHMM_SSP_output.txt
-cat Suilu4_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilu4_TMHMM_SSP_output.txt
-cat Suilak1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suilak1_TMHMM_SSP_output.txt
-cat Suihi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suihi1_TMHMM_SSP_output.txt
-cat Suigr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suigr1_TMHMM_SSP_output.txt
-cat Suidec1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suidec1_TMHMM_SSP_output.txt
-cat Suicot1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicot1_TMHMM_SSP_output.txt
-cat Suicli1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suicli1_TMHMM_SSP_output.txt
-cat Suibr2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibr2_TMHMM_SSP_output.txt
-cat Suibov1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suibov1_TMHMM_SSP_output.txt
-cat Suiamp1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiamp1_TMHMM_SSP_output.txt
-cat Suiame1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Suiame1_TMHMM_SSP_output.txt
-
-
-cat Rhivul1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhivul1_TMHMM_SSP_output.txt
-cat Rhitru1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Rhitru1_TMHMM_SSP_output.txt
-cat Amamu1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Amamu1_TMHMM_SSP_output.txt
-cat Hebcy2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Hebcy2_TMHMM_SSP_output.txt
-cat Lacbi2_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Lacbi2_TMHMM_SSP_output.txt
-cat Paxin1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Paxin1_TMHMM_SSP_output.txt
-cat Pilcr1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pilcr1_TMHMM_SSP_output.txt
-cat Pismi1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Pismi1_TMHMM_SSP_output.txt
-cat Sclci1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.options -modelfile /home/kennedyp/llofgren/COMP/SignalP/TMHMM2.0.model -N1 -PrintNumbers -PrintScore -PrintStat | perl ${FORMAT}> Sclci1_TMHMM_SSP_output.txt
-
-#end .pbs script is here 
 ######
 
 #to parse SSP's in R
@@ -110,7 +44,9 @@ cat Sclci1_wo_stops_mature.fasta | ${DECODE} -f /home/kennedyp/llofgren/COMP/Sig
 #load libraries
 library("seqinr")
 library("data.table")
+library("stringr")
 
+options(stringsAsFactors = FALSE)
 setwd("~/Desktop/Project_Suillus_comp_genomics/R")
 #read in the input files
 Suivar1_TMHMM<- data.frame(read.csv("Suivar1_TMHMM_SSP_output.txt", header = FALSE, col.names = "header"))
@@ -371,6 +307,7 @@ Pilcr1_TMHMM_no_TMD_300<- Pilcr1_df.num[Pilcr1_df.num$V1 < 300, ]
 Pismi1_TMHMM_no_TMD_300<- Pismi1_df.num[Pismi1_df.num$V1 < 300, ]
 Sclci1_TMHMM_no_TMD_300<- Sclci1_df.num[Sclci1_df.num$V1 < 300, ]
 
+
 #get #SSP's per genome
 #get summary numbers for each of these and attach them to the previous output file. 
 Suivar1<- nrow(Suivar1_TMHMM_no_TMD_300)
@@ -431,7 +368,7 @@ totals.2<- data.frame(cbind(Suivar1,
                             Pilcr1,
                             Pismi1,
                             Sclci1),
-                      row.names = "#SSPs_signalP,TMHMM,lt_300aa")
+                      row.names = "#SSPs")
 totals.2[1,]
 
 #write out totals to a file
@@ -512,10 +449,9 @@ isolate_ID <- function(in_df) {
 }
 
 
-  
 #run function to isolate IDs  
 Suivar1_subset <- data.frame(substr(Suivar1_TMHMM_no_TMD_300$X1, 3,nchar(Suivar1_TMHMM_no_TMD_300$X1)))
-Suivar1.2_subset<- isolate_ID(Suivar1_subset) 
+Suivar1.2_subset<- isolate_ID(Suivar1_subset)  
 Suivar1.3_subset<- data.frame(lapply(Suivar1.2_subset, gsub, pattern=' ', replacement=''))
 
 Suitom1_subset <- data.frame(substr(Suitom1_TMHMM_no_TMD_300$X1, 3,nchar(Suitom1_TMHMM_no_TMD_300$X1)))
@@ -626,6 +562,39 @@ Pismi1.3_subset<- data.frame(lapply(Pismi1.2_subset, gsub, pattern=' ', replacem
 Sclci1_subset <- data.frame(substr(Sclci1_TMHMM_no_TMD_300$X1, 3,nchar(Sclci1_TMHMM_no_TMD_300$X1)))
 Sclci1.2_subset<- isolate_ID(Sclci1_subset) 
 Sclci1.3_subset<- data.frame(lapply(Sclci1.2_subset, gsub, pattern=' ', replacement=''))
+
+
+#change all "|" to "_" in the input files
+names(Suivar1_in)<-lapply(names(Suivar1_in), gsub, pattern="\\|", replacement='_')
+names(Suitom1_in)<-lapply(names(Suitom1_in), gsub, pattern="\\|", replacement='_')
+names(Suisub1_in)<-lapply(names(Suisub1_in), gsub, pattern="\\|", replacement='_')
+names(Suisu1_in)<-lapply(names(Suisu1_in), gsub, pattern="\\|", replacement='_')
+names(Suipla1_in)<-lapply(names(Suipla1_in), gsub, pattern="\\|", replacement='_')
+names(Suipic1_in)<-lapply(names(Suipic1_in), gsub, pattern="\\|", replacement='_')
+names(Suipal1_in)<-lapply(names(Suipal1_in), gsub, pattern="\\|", replacement='_')
+names(Suiocc1_in)<-lapply(names(Suiocc1_in), gsub, pattern="\\|", replacement='_')
+names(Suilu4_in)<-lapply(names(Suilu4_in), gsub, pattern="\\|", replacement='_')
+names(Suilak1_in)<-lapply(names(Suilak1_in), gsub, pattern="\\|", replacement='_')
+names(Suihi1_in)<-lapply(names(Suihi1_in), gsub, pattern="\\|", replacement='_')
+names(Suigr1_in)<-lapply(names(Suigr1_in), gsub, pattern="\\|", replacement='_')
+names(Suidec1_in)<-lapply(names(Suidec1_in), gsub, pattern="\\|", replacement='_')
+names(Suicot1_in)<-lapply(names(Suicot1_in), gsub, pattern="\\|", replacement='_')
+names(Suicli1_in)<-lapply(names(Suicli1_in), gsub, pattern="\\|", replacement='_')
+names(Suibr2_in)<-lapply(names(Suibr2_in), gsub, pattern="\\|", replacement='_')
+names(Suibov1_in)<-lapply(names(Suibov1_in), gsub, pattern="\\|", replacement='_')
+names(Suiamp1_in)<-lapply(names(Suiamp1_in), gsub, pattern="\\|", replacement='_')
+names(Suiame1_in)<-lapply(names(Suiame1_in), gsub, pattern="\\|", replacement='_')
+
+names(Rhivul1_in)<-lapply(names(Rhivul1_in), gsub, pattern="\\|", replacement='_')
+names(Rhitru1_in)<-lapply(names(Rhitru1_in), gsub, pattern="\\|", replacement='_')
+names(Amamu1_in)<-lapply(names(Amamu1_in), gsub, pattern="\\|", replacement='_')
+names(Hebcy2_in)<-lapply(names(Hebcy2_in), gsub, pattern="\\|", replacement='_')
+names(Lacbi2_in)<-lapply(names(Lacbi2_in), gsub, pattern="\\|", replacement='_')
+names(Paxin1_in)<-lapply(names(Paxin1_in), gsub, pattern="\\|", replacement='_')
+names(Pilcr1_in)<-lapply(names(Pilcr1_in), gsub, pattern="\\|", replacement='_')
+names(Pismi1_in)<-lapply(names(Pismi1_in), gsub, pattern="\\|", replacement='_')
+names(Sclci1_in)<-lapply(names(Sclci1_in), gsub, pattern="\\|", replacement='_')
+
 
 
 #get fastas of only positive hits for EffectorP analysis 
@@ -830,7 +799,7 @@ total_effectors<- data.frame(cbind(Suivar1,
                                    Pilcr1,
                                    Pismi1,
                                    Sclci1),
-                             row.names = "n_putative_effectors_from_EffectorP")
+                             row.names = "n_effectors_from_EffectorP")
 
 
 
@@ -894,7 +863,7 @@ total_SSPs<- data.frame(cbind(Suivar1,
                             Pilcr1,
                             Pismi1,
                             Sclci1),
-                      row.names = "#SSPs_signalP,TMHMM,lt_300aa")
+                      row.names = "n_SSPs_signalP_TMHMM_lt_300aa")
 
 
 #Proteins per genome
@@ -957,11 +926,12 @@ total_proteins<-data.frame(cbind(Suivar1,
                                  Pilcr1,
                                  Pismi1,
                                  Sclci1),
-                           row.names = "n_putative_proteins_from_gene_cat")  
+                           row.names = "n_proteins_from_gene_cat")  
 
 #bind results and transform
 results<- rbind(total_proteins[1,], total_SSPs[1,], total_effectors[1,])
 results.1<- t(results)
+
 
 #get % SSP's out of total genes
 percent_SSPs_out_of_total_genes<- (results.1[,2] / results.1[,1])*100
@@ -976,14 +946,12 @@ percent_effectors_out_of_SSPs<-signif(percent_effectors_out_of_SSPs, digits = 4)
 #slap it together
 results_with_percentages<- cbind(results.1, percent_SSPs_out_of_total_genes, percent_effectors_out_of_total_genes, percent_effectors_out_of_SSPs)
   
-
 #write it up
-write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals.csv")
+#write.csv(results, quote = FALSE, file = "SSP_and_Effector_totals_SP5.csv")
 
 
 #read in genome size file and run stats for table
 genome_size_df<- read.csv("genome_size_data.csv")
-
 
 
 #split the two data categories for genome size and get stats for each
@@ -1008,12 +976,42 @@ shapiro.test(Other_genome_size$genome_size)
 
 #test for equal variance 
 var.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size)
-#variance is not sif. different, but can't trust becasue not nomal, be conservatice and use unequal var in test
+#variance is not sif. different, but can't trust becasue not nomal, be conservative and use unequal var in test
 
 #t-test 
 t.test(Suillus_genome_size$genome_size, Other_genome_size$genome_size, var.equal = FALSE)
 
 
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_GS<- Suillus_genome_size_mean - Other_genome_size_mean
+
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+a<- data.frame(Suillus_genome_size$genome_size, rep("a_Suillus"))
+colnames(a)<- c("GS", "group")
+
+b<- data.frame(Other_genome_size$genome_size, rep("b_Other"))
+colnames(b)<- c("GS", "group")
+GS_df<- rbind(a,b)
+
+
+#attach it to the numbers
+df_to_scramble<-data.frame(GS_df$GS,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(GS_df$GS[sample.group=="a_Suillus"])) -
+    mean(as.numeric(GS_df$GS[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_GS))
+p_value
+#0.0628
 
 #split and get stats for n proteins 
 results_with_percentages_for_split<- cbind(results_with_percentages, row.names(results_with_percentages))
@@ -1028,80 +1026,118 @@ Suillus_ssps[] <- lapply(Suillus_ssps, function(x) {
 })
 sapply(Suillus_ssps, class)
 
+class(Suillus_ssps$n_proteins_from_gene_cat)
+
 #and the other one too...
 Other_ssps[] <- lapply(Other_ssps, function(x) {
   if(is.character(x)) as.numeric(as.character(x)) else x
 })
 sapply(Other_ssps, class)
 
-Suillus_n_prot_mean<- mean(Suillus_ssps$n_putative_proteins_from_gene_cat)
-Suillus_n_prot_SD<- sd(Suillus_ssps$n_putative_proteins_from_gene_cat)
-Suillus_n_prot_SE<- std(Suillus_ssps$n_putative_proteins_from_gene_cat)
+Suillus_n_prot_mean<- mean(Suillus_ssps$n_proteins_from_gene_cat)
+Suillus_n_prot_SD<- sd(Suillus_ssps$n_proteins_from_gene_cat)
+Suillus_n_prot_SE<- std(Suillus_ssps$n_proteins_from_gene_cat)
 
-Other_n_prot_mean<- mean(Other_ssps$n_putative_proteins_from_gene_cat)
-Other_n_prot_SD<- sd(Other_ssps$n_putative_proteins_from_gene_cat)
-Other_n_prot_SE<- std(Other_ssps$n_putative_proteins_from_gene_cat)
+Other_n_prot_mean<- mean(Other_ssps$n_proteins_from_gene_cat)
+Other_n_prot_SD<- sd(Other_ssps$n_proteins_from_gene_cat)
+Other_n_prot_SE<- std(Other_ssps$n_proteins_from_gene_cat)
 
 
 #test normality 
-shapiro.test(Suillus_ssps$n_putative_proteins_from_gene_ca)
+shapiro.test(Suillus_ssps$n_proteins_from_gene_ca)
 #normal
-shapiro.test(Other_ssps$n_putative_proteins_from_gene_ca)
+shapiro.test(Other_ssps$n_proteins_from_gene_ca)
 #normal
 
 #test for equal variance 
-var.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat)
-#variance is not sif. different 
+var.test(Suillus_ssps$n_proteins_from_gene_cat, Other_ssps$n_proteins_from_gene_cat)
+#variance is sif. different 
 
 #t-test 
-t.test(Suillus_ssps$n_putative_proteins_from_gene_cat, Other_ssps$n_putative_proteins_from_gene_cat, var.equal = TRUE)
+t.test(Suillus_ssps$n_proteins_from_gene_cat, Other_ssps$n_proteins_from_gene_cat, var.equal = FALSE)
 
 
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_proteins<- Suillus_n_prot_mean - Other_n_prot_mean
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+a<- data.frame(Suillus_ssps$n_proteins_from_gene_cat, rep("a_Suillus"))
+colnames(a)<- c("prot", "group")
+
+b<- data.frame(Other_ssps$n_proteins_from_gene_cat, rep("b_Other"))
+colnames(b)<- c("prot", "group")
+proteins_df<- rbind(a,b)
+
+
+#attach it to the numbers
+df_to_scramble<-data.frame(proteins_df$prot,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(proteins_df$prot[sample.group=="a_Suillus"])) -
+    mean(as.numeric(proteins_df$prot[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_proteins))
+p_value
+# 0.4062
+
+
+mean(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #get stats for SSP's 
-Suillus_ssp_mean<- mean(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Suillus_ssp_SD<- sd(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Suillus_ssp_SE<- std(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Suillus_ssp_mean<- mean(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Suillus_ssp_SD<- sd(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Suillus_ssp_SE<- std(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 
-Other_ssp_mean<- mean(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Other_ssp_SD<- sd(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
-Other_ssp_SE<- std(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+Other_ssp_mean<- mean(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Other_ssp_SD<- sd(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
+Other_ssp_SE<- std(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 
 #test normality 
-shapiro.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+shapiro.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #normal-ish
-shapiro.test(Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+shapiro.test(Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #normal
 
 #test for equal variance 
-var.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa)
+var.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa, Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa)
 #variance is not sif. different 
 
 #t-test 
-t.test(Suillus_ssps$X.SSPs_signalP.TMHMM.lt_300aa, Other_ssps$X.SSPs_signalP.TMHMM.lt_300aa, var.equal = TRUE)
-
-
+t.test(Suillus_ssps$n_SSPs_signalP_TMHMM_lt_300aa, Other_ssps$n_SSPs_signalP_TMHMM_lt_300aa, var.equal = TRUE)
+#not significantly different
 
 #get stats for effectors
-Suillus_effectors_mean<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
-Suillus_effectors_SD<- sd(Suillus_ssps$n_putative_effectors_from_EffectorP)
-Suillus_effectors_SE<- std(Suillus_ssps$n_putative_effectors_from_EffectorP)
+Suillus_effectors_mean<- mean(Suillus_ssps$n_effectors_from_EffectorP)
+Suillus_effectors_SD<- sd(Suillus_ssps$n_effectors_from_EffectorP)
+Suillus_effectors_SE<- std(Suillus_ssps$n_effectors_from_EffectorP)
 
-Other_effectors_mean<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
-Other_effectors_SD<- sd(Other_ssps$n_putative_effectors_from_EffectorP)
-Other_effectors_SE<- std(Other_ssps$n_putative_effectors_from_EffectorP)
+Other_effectors_mean<- mean(Other_ssps$n_effectors_from_EffectorP)
+Other_effectors_SD<- sd(Other_ssps$n_effectors_from_EffectorP)
+Other_effectors_SE<- std(Other_ssps$n_effectors_from_EffectorP)
 
 #test normality 
-shapiro.test(Suillus_ssps$n_putative_effectors_from_EffectorP)
-#not normal
-shapiro.test(Other_ssps$n_putative_effectors_from_EffectorP)
-#not normal
+shapiro.test(Suillus_ssps$n_effectors_from_EffectorP)
+#normal
+shapiro.test(Other_ssps$n_effectors_from_EffectorP)
+#normal
 
 #test for equal variance 
-var.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP)
-#variance is not sif. different, but we can't trust it becaseu it's not normal, use conservatie var = FALSE in test
+var.test(Suillus_ssps$n_effectors_from_EffectorP, Other_ssps$n_effectors_from_EffectorP)
+#variance is not sif. different, and normal, use conservatie var = TRUE in test
 
 #t-test 
-t.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_effectors_from_EffectorP, var.equal = FALSE)
+t.test(Suillus_ssps$n_effectors_from_EffectorP, Other_ssps$n_effectors_from_EffectorP, var.equal = TRUE)
 #not different
 
 
@@ -1109,10 +1145,10 @@ t.test(Suillus_ssps$n_putative_effectors_from_EffectorP, Other_ssps$n_putative_e
 #to do this, upload the outout fasta files of SSP's and run them in orthofinder. 
 ortho_finder_SSP_results<- read.table("Statistics_PerSpecies_all_ECM.csv", sep = ",", row.names = 1, header=TRUE)
 
+
 #the perninant info: 
 SSP_vs_SSSP1<- ortho_finder_SSP_results[1:3,]
 SSP_vs_SSSP<- t(SSP_vs_SSSP1)
-
 
 #get percent SSSP's of SSP's
 percent_SSPs_out_of_SSSPs<- (100*(SSP_vs_SSSP[,3]) / SSP_vs_SSSP[,1])
@@ -1120,19 +1156,82 @@ percent_SSPs_out_of_SSSPs<- (100*(SSP_vs_SSSP[,3]) / SSP_vs_SSSP[,1])
 percent_SSPs_out_of_SSSPs<- data.frame(signif(percent_SSPs_out_of_SSSPs, digits = 3))
 
 
+#pull out row names to set groups 
+names.list<- row.names(percent_SSPs_out_of_SSSPs)
+percent_SSPs_out_of_SSSPs.2<- cbind(percent_SSPs_out_of_SSSPs, names.list)
+
+Suillus_ssps_vs_sssps<-data.frame(percent_SSPs_out_of_SSSPs.2[ grep("Sui", percent_SSPs_out_of_SSSPs.2[,2],), ])
+Suillus_ssps_vs_sssps<- Suillus_ssps_vs_sssps[,1]
+
+Other_ssps_vs_sssps<- data.frame(percent_SSPs_out_of_SSSPs.2[ grep("Sui", percent_SSPs_out_of_SSSPs.2[,2], invert = TRUE), ])
+Other_ssps_vs_sssps<- Other_ssps_vs_sssps[,1]
+
+#plot the above 
+groups<- c("Suillus", "Other ECM")
+boxplot(Suillus_ssps_vs_sssps, Other_ssps_vs_sssps, names = groups, ylab = "% SSSPs of SSPs")
+
+
+#SSPs vs n prot
+names.list<- row.names(SSP_vs_SSSP)
+SSP_vs_SSSP2<- data.frame(cbind(SSP_vs_SSSP, names.list))
+SSP_vs_SSSP_raw_Suillus<-data.frame(SSP_vs_SSSP2[ grep("Sui", SSP_vs_SSSP2[,4],), ])
+SSP_vs_SSSP_raw_Suillus<- SSP_vs_SSSP_raw_Suillus[,1:3]
+SSP_vs_SSSP_raw_Other<-data.frame(SSP_vs_SSSP2[ grep("Sui", SSP_vs_SSSP2[,4], invert = TRUE), ])
+SSP_vs_SSSP_raw_Other<- SSP_vs_SSSP_raw_Other[,1:3]
+
+#ugh. turn them numeric again
+SSP_vs_SSSP_raw_Other[] <- lapply(SSP_vs_SSSP_raw_Other, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(SSP_vs_SSSP_raw_Other, class)
+
+SSP_vs_SSSP_raw_Suillus[] <- lapply(SSP_vs_SSSP_raw_Suillus, function(x) {
+  if(is.character(x)) as.numeric(as.character(x)) else x
+})
+sapply(SSP_vs_SSSP_raw_Suillus, class)
+
+
+#get number SSP's as a percentage of total proteins 
+Suillus_ssps[,1] #total Suillus prot
+Other_ssps[,1] #total Other ECM prot
+
+Suillus_ssps[,2] #total Suillus SSPs
+Other_ssps[,2] #total Other ECM SSPs
+
+percent_SSPs_out_of_prot_Suillus<- (100*Suillus_ssps[,2] / Suillus_ssps[,1])
+percent_SSPs_out_of_prot_Suillus<- data.frame(signif(percent_SSPs_out_of_prot_Suillus, digits = 3))
+
+percent_SSPs_out_of_prot_Other<- (100*Other_ssps[,2] / Other_ssps[,1])
+percent_SSPs_out_of_prot_Other<- data.frame(signif(percent_SSPs_out_of_prot_Other, digits = 3))
+
+#strip
+Suillus<- cbind(percent_SSPs_out_of_prot_Suillus, rep("a_Suillus", length(percent_SSPs_out_of_prot_Suillus)))
+colnames(Suillus)<- c("%", "group")
+
+Other_ECM<- cbind(percent_SSPs_out_of_prot_Other, rep("b_Other", length(percent_SSPs_out_of_prot_Other)))
+colnames(Other_ECM)<- c("%", "group")
+
+SSPs_out_of_prot_df<- data.frame(rbind(Suillus, Other_ECM))
+
+
 
 
 #######START HERE WITH GRAPHS######## 
+##color pallet:"#4F5C69", "#838558", "#A49C4C","#E4D9AC", "#F9F1D2", "#FBE898", "#FFCC6E", "#E6A871"
+#Suillus:
+#Other: 
+
+
 ######### % SSP's out of total proteins 
-med1= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "a_Suillus"])
-med2= mean(SSPs_out_of_prot_df$`%` [SSPs_out_of_prot_df$group == "b_Other"])
-par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
-stripchart(SSPs_out_of_prot_df$`%` ~ SSPs_out_of_prot_df$group,
+med1= mean(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"])
+med2= mean(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"])
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0), las=1)
+stripchart(SSPs_out_of_prot_df$X. ~ SSPs_out_of_prot_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
-           pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           pch = 19, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
            ylim=c(0,4), 
            ylab = "% SSPs out of all proteins", 
@@ -1145,7 +1244,129 @@ segments(x0 = .7, y0 =  med1, x1 = 1.3, y1=med1, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med2, x1 = 2.3, y1=med2, lwd = 2, col = "black" )
 #add boxplot around the data? 
   #boxplot(`%` ~ group, data = SSPs_out_of_SSSPs_df, add=TRUE, range=0, whisklty = 0, staplelty = 0)
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
 
+
+
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"])
+shapiro.test(as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]))
+#variance is equal
+
+#t-test 
+t.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]), var.equal = FALSE)
+#not different
+
+std <- function(x) sd(x)/sqrt(length(x))
+
+#split df
+SSPs_out_of_prot_df_Suillus<- SSPs_out_of_prot_df[SSPs_out_of_prot_df$group == "a_Suillus",]
+SSPs_out_of_prot_df_Other<- SSPs_out_of_prot_df[SSPs_out_of_prot_df$group == "b_Other",]
+
+#get means
+mean_SSPs_out_of_prot_df_Suillus<- mean(SSPs_out_of_prot_df_Suillus$X.)
+mean_SSPs_out_of_prot_df_Other<- mean(SSPs_out_of_prot_df_Other$X.)
+
+#get standard error
+SSPs_out_of_prot_df_Suillus_SE<- std(SSPs_out_of_prot_df_Suillus$X.)  
+SSPs_out_of_prot_df_Other_SE<- std(SSPs_out_of_prot_df_Other$X.) 
+
+
+# ##boot strap to get confidence interval for p-vals?
+# 
+# #function to sample 9 with replacement and get P value
+# sample_9<- function(S_df1, O_df2) {
+#   S_df1<- S_df1[sample(nrow(S_df1), size = 19, replace = TRUE),]
+#   O_df2<- O_df2[sample(nrow(O_df2), size = 9, replace = TRUE),]
+#   t_df<- rbind(S_df1, O_df2)
+#   t_test<- t.test((as.numeric(t_df$X.) [t_df$group == "a_Suillus"]), (as.numeric(t_df$X.) [t_df$group == "b_Other"]), var.equal = FALSE)
+#   p<- t_test$p.value
+#   return(p)
+# }
+# 
+# #run function
+# SSPs_out_of_prot_p_vals<- replicate(10000, sample_9(SSPs_out_of_prot_df_Suillus, SSPs_out_of_prot_df_Other))
+# hist(SSPs_out_of_prot_p_vals, xlim = c(.000001, 1), breaks = 100)
+# 
+# 
+# #get percent < 0.05
+# percent_under<- (nrow(data.frame(SSPs_out_of_prot_p_vals_df[SSPs_out_of_prot_p_vals_df < 0.05])) * 100) / 10000
+# 
+# 
+# 
+# #No, try difference of means bootstrapping 
+# 
+# #create empty vector to hold the results
+# actual_diff_SSPs_out_of_prot<- mean(SSPs_out_of_prot_df_Suillus$X.) - mean(SSPs_out_of_prot_df_Other$X.)
+# actual_diff_SSPs_out_of_prot
+# 
+# reps = 10000
+# Suillus_boot_dist1<- rep(NA,reps)
+# Other_boot_dist1<- rep(NA,reps)
+# boot.dist.diff<- rep(NA, reps)
+# 
+# #create sample dist
+# for (i in 1:reps) {
+#   #Suillus
+#   boot.sample.S<- sample(SSPs_out_of_prot_df_Suillus$X., 19, replace = TRUE)
+#   Suillus_boot_dist1[i] <- mean(boot.sample.S)
+#   
+#   #Other
+#   boot.sample.O<- sample(SSPs_out_of_prot_df_Other$X., 9, replace = TRUE)
+#   Other_boot_dist1[i] <- mean(boot.sample.O)
+#   boot.dist.diff[i] <- Suillus_boot_dist1[i] - Other_boot_dist1[i]
+#   i = i + 1}
+# 
+# hist(boot.dist.diff)
+# #looks normal
+# 
+# #get standard error
+# sd(boot.dist.diff)
+# 
+# #calculate 95% CI of boots
+# lower = mean(actual_diff_SSPs_out_of_prot) + qt(0.025, 19) *sd(boot.dist.diff)
+# upper = mean(actual_diff_SSPs_out_of_prot) + qt(0.975, 19) *sd(boot.dist.diff)
+# CI = c(lower, upper)
+# CI
+# #we are 95% certain that the number of SSPs out of total Prot is between
+# #0.09243591  0.52576924 higher in Suillus than in other ECM fungi.
+# 
+
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_SSPs_out_of_prot<- mean(SSPs_out_of_prot_df_Suillus$X.) - mean(SSPs_out_of_prot_df_Other$X.)
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(SSPs_out_of_prot_df$X.,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.county<-sample(group)
+  rand.dist[i]<-mean(SSPs_out_of_prot_df$X.[sample.county=="a_Suillus"]) -
+    mean(SSPs_out_of_prot_df$X.[sample.county=="b_Other"])
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_SSPs_out_of_prot))
+p_value
+
+#how does it compare to the original?
+t_test_og<- t.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]), var.equal = FALSE)
+t_test_og$p.value
+
+#pretty comprable
 
 
 
@@ -1171,10 +1392,10 @@ stripchart(SSPs_out_of_SSSPs_df$`%` ~ SSPs_out_of_SSSPs_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 19, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,70), 
+           ylim=c(0,80), 
            ylab = "% SSSPs out of SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1183,11 +1404,71 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "b"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_Suillus"])
+shapiro.test(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "b_Other"])
+#normal, can't reject null asum. that dist is normal
+
+#test for equal variance 
+var.test(as.numeric(SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (SSPs_out_of_SSSPs_df$`%` [SSPs_out_of_SSSPs_df$group == "b_Other"]))
+#variance is not equal
+
+#t-test 
+t.test((as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
+#not different
+
+#split df
+SSSPs_out_of_SSPs_df_Suillus<- SSPs_out_of_SSSPs_df[SSPs_out_of_SSSPs_df$group == "a_Suillus",]
+SSSPs_out_of_SSPs_df_Other<- SSPs_out_of_SSSPs_df[SSPs_out_of_SSSPs_df$group == "b_Other",]
+
+#get means
+mean_SSSPs_out_of_SSPs_df_Suillus<- mean(SSSPs_out_of_SSPs_df_Suillus$`%`)
+mean_SSSPs_out_of_SSPs_df_Other<- mean(SSSPs_out_of_SSPs_df_Other$`%`)
+
+#get standard error
+SSSPs_out_of_SSPs_df_Suillus_SE<- std(SSSPs_out_of_SSPs_df_Suillus$`%`)  
+SSSPs_out_of_SSPs_df_Other_SE<- std(SSSPs_out_of_SSPs_df_Other$`%`) 
+
+
+
+#Randomization test
+n=10000
+rand.dist3<-rep(NA,n)
+actual_diff_SSSPs_out_of_SSPs<- mean_SSSPs_out_of_SSPs_df_Suillus - mean_SSSPs_out_of_SSPs_df_Other
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSSPs_out_of_SSPs_df_Suillus)),rep("b_Other",nrow(SSSPs_out_of_SSPs_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(SSPs_out_of_SSSPs_df$`%`,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist3[i]<-mean(SSPs_out_of_SSSPs_df$`%`[sample.group=="a_Suillus"]) -
+    mean(SSPs_out_of_SSSPs_df$`%`[sample.group=="b_Other"])
+}
+hist(rand.dist3)
+p_value<-mean(abs(rand.dist3)>=abs(actual_diff_SSSPs_out_of_SSPs))
+
+mean(abs(rand.dist3))
+abs(actual_diff_SSSPs_out_of_SSPs)
+p_value
+#1e-04
+
+#how does it compare to the original?
+t_test_og<- t.test((as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_SSSPs_df$`%`) [SSPs_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
+t_test_og$p.value
+
 
 
 
 #######Effectors as a percentage of SSP's########
-
 percent_effector_Suillus<- as.numeric(Suillus_ssps$percent_effectors_out_of_SSPs)
 percent_effector_Other<- as.numeric(Other_ssps$percent_effectors_out_of_SSPs)
 
@@ -1197,20 +1478,23 @@ colnames(Suillus3)<- c("%", "group")
 Other_ECM3<- cbind(percent_effector_Other, rep("b_Other", length(percent_effector_Other)))
 colnames(Other_ECM3)<- c("%", "group")
 
-effectors_out_of_SSSPs_df<- data.frame(rbind(Suillus3, Other_ECM3))
+effectors_out_of_SSSPs_df<- as.data.frame(rbind(Suillus3, Other_ECM3))
 
 
 med3= mean(Suillus_ssps$percent_effectors_out_of_SSPs)
 med4= mean(Other_ssps$percent_effectors_out_of_SSPs)
+#combine the data
+
+
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
-stripchart(effectors_out_of_SSSPs_df$X. ~ effectors_out_of_SSSPs_df$group,
+stripchart(effectors_out_of_SSSPs_df$`%` ~ effectors_out_of_SSSPs_df$group,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 19, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,50), 
+           ylim=c(0,60), 
            ylab = "% Effectors out of SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1219,6 +1503,113 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "a_Suillus"])
+#not normal
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(effectors_out_of_SSSPs_df$`%` [effectors_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"]))
+#variance is margenally equal
+
+#t-test 
+t.test((as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(effectors_out_of_SSSPs_df$`%`) [effectors_out_of_SSSPs_df$group == "b_Other"]), var.equal = FALSE)
+#not different
+
+#transform data to meet normality assumptions
+effectors_out_of_SSSPs_df$logX1<- log(as.numeric(effectors_out_of_SSSPs_df$`%`))
+#re-test normality 
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(effectors_out_of_SSSPs_df$logX1 [effectors_out_of_SSSPs_df$group == "a_Suillus"]), 
+         (as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "a_Suillus"]), (as.numeric(effectors_out_of_SSSPs_df$logX1) [effectors_out_of_SSSPs_df$group == "b_Other"]), var.equal = TRUE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(Suillus_ssps$percent_effectors_out_of_SSPs))
+med4= mean(log(Other_ssps$percent_effectors_out_of_SSPs))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(effectors_out_of_SSSPs_df$logX1 ~ effectors_out_of_SSSPs_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log % Effectors out of SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+#split df
+effectors_out_of_SSSPs_Suillus<- Suillus_ssps[Suillus_ssps$group == "a_Suillus",]
+effectors_out_of_SSSPs_Suillus_Other<- Other_ssps[Other_ssps$group == "b_Other",]
+
+#get means
+mean_effectors_out_of_SSSPs_Suillus<- mean(Suillus_ssps$percent_effectors_out_of_SSPs)
+mean_effectors_out_of_SSSPs_Other<- mean(Other_ssps$percent_effectors_out_of_SSPs)
+
+
+#get standard error
+effectors_out_of_SSSPs_Suillus_SE<- std(Suillus_ssps$percent_effectors_out_of_SSPs)  
+effectors_out_of_SSSPs_Other_SE<- std(Other_ssps$percent_effectors_out_of_SSPs) 
+
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_effectors_out_of_SSPs<- mean_effectors_out_of_SSSPs_Suillus - mean_effectors_out_of_SSSPs_Other
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(effectors_out_of_SSSPs_df$`%`,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(effectors_out_of_SSSPs_df$`%`[sample.group=="a_Suillus"])) -
+    mean(as.numeric(effectors_out_of_SSSPs_df$`%`[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_effectors_out_of_SSPs))
+p_value
+#0.2598
+
+
+
+#how does it compare to the original?
+t_test_og<- t.test((as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "a_Suillus"]), (as.numeric(SSPs_out_of_prot_df$X.) [SSPs_out_of_prot_df$group == "b_Other"]), var.equal = FALSE)
+t_test_og$p.value
+
+#pretty comprable
+
 
 
 
@@ -1245,10 +1636,10 @@ stripchart(SSP_df$X1 ~ SSP_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,550), 
+           ylim=c(0,650), 
            ylab = "SSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1257,6 +1648,88 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSP_df$X1) [SSP_df$X2 == "a_Suillus"])
+#not quite normal
+
+shapiro.test(as.numeric(SSP_df$X1) [SSP_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(SSSP_df$X1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#transform data to meet normality assumptions
+SSP_df$logX1<- log(as.numeric(SSP_df$X1))
+#re-test normality 
+shapiro.test(as.numeric(SSP_df$logX1) [SSP_df$X2 == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(SSP_df$logX1 [SSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(SSP_df$logX1) [SSP_df$X2 == "a_Suillus"]), (as.numeric(SSP_df$logX1) [SSP_df$X2 == "b_Other"]), var.equal = TRUE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(SSPs_Suillus))
+med4= mean(log(SSPs_Other))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSP_df$logX1 ~ SSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log SSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_SSPs<- mean(SSPs_Suillus) - mean(SSPs_Other)
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(SSP_df$X1,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(SSP_df$X1[sample.group=="a_Suillus"])) -
+    mean(as.numeric(SSP_df$X1[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_SSPs))
+p_value
+#0.5579
 
 
 
@@ -1272,15 +1745,20 @@ SSSP_df<- data.frame(rbind(SSSPs_Suillus_df, SSSPs_Other_df))
 med3= mean(SSSPs_Suillus)
 med4= mean(SSSPs_Other)
 
+#get standard error
+SSSPs_Suillus_SE<- std(SSSPs_Suillus)  
+SSSPs_Other_SE<- std(SSSPs_Other) 
+
+
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
 stripchart(SSSP_df$X1 ~ SSSP_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
-           ylim=c(0,360), 
+           ylim=c(0,460), 
            ylab = "SSSPs", 
            axes = FALSE, 
            cex = 1.3)
@@ -1289,26 +1767,117 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "b"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(SSSP_df$X1) [SSSP_df$X2 == "a_Suillus"])
+#not normal
+
+shapiro.test(as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(SSSP_df$X1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#t-test 
+t.test((as.numeric(SSSP_df$X1) [SSSP_df$X2 == "a_Suillus"]), (as.numeric(SSSP_df$X1) [SSSP_df$X2 == "b_Other"]), var.equal = FALSE)
+#not different
+
+#transform data to meet normality assumptions
+SSSP_df$logX1<- log(as.numeric(SSSP_df$X1))
+#re-test normality 
+shapiro.test(as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "a_Suillus"])
+#Normal now
+shapiro.test(as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"])
+#Still normal
+
+#re-test varriance 
+#test for equal variance 
+var.test(as.numeric(SSSP_df$logX1 [SSSP_df$X2 == "a_Suillus"]), 
+         (as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"]))
+#variance not equal
+
+#t-test 
+t.test((as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "a_Suillus"]), (as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"]), var.equal = FALSE)
+#not different
+
+#re-graph is with log-transformed data 
+med3= mean(log(SSSPs_Suillus))
+med4= mean(log(SSSPs_Other))
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(SSSP_df$logX1 ~ SSSP_df$X2,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
+           cex.axis = 0.7,
+           ylim=c(0,10), 
+           ylab = "log SSSPs", 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
+segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_SSSPs<- mean(SSSPs_Suillus) - mean(SSSPs_Other)
+#SSPs_out_of_prot_df is the original data frame, not parced by species
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(SSSP_df$X1,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(SSSP_df$X1[sample.group=="a_Suillus"])) -
+    mean(as.numeric(SSSP_df$X1[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_SSSPs))
+p_value
+
+#How does this compare to the original? 
+t.test((as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "a_Suillus"]), (as.numeric(SSSP_df$logX1) [SSSP_df$X2 == "b_Other"]), var.equal = FALSE)
+#0.0521
+
+
+
+
 
 ###### form Raw data (no %): Effectors #######
-effector_Suillus<- as.numeric(Suillus_ssps$n_putative_effectors_from_EffectorP)
-effector_Suillus_df<- data.frame(cbind(Suillus_ssps$n_putative_effectors_from_EffectorP, rep("a_Suillus", length(Suillus_ssps$n_putative_effectors_from_EffectorP))))
+effector_Suillus<- as.numeric(Suillus_ssps$n_effectors_from_EffectorP)
+effector_Suillus_df<- data.frame(cbind(Suillus_ssps$n_effectors_from_EffectorP, rep("a_Suillus", length(Suillus_ssps$n_effectors_from_EffectorP))))
 
-effector_Other<- as.numeric(Other_ssps$n_putative_effectors_from_EffectorP)
-effector_Other_df<- data.frame(cbind(Other_ssps$n_putative_effectors_from_EffectorP, rep("b_Other", length(Other_ssps$n_putative_effectors_from_EffectorP))))
+effector_Other<- as.numeric(Other_ssps$n_effectors_from_EffectorP)
+effector_Other_df<- data.frame(cbind(Other_ssps$n_effectors_from_EffectorP, rep("b_Other", length(Other_ssps$n_effectors_from_EffectorP))))
 
 effector_df<- data.frame(rbind(effector_Suillus_df, effector_Other_df))
 
-med3<- mean(Suillus_ssps$n_putative_effectors_from_EffectorP)
-med4<- mean(Other_ssps$n_putative_effectors_from_EffectorP)
+med3<- mean(Suillus_ssps$n_effectors_from_EffectorP)
+med4<- mean(Other_ssps$n_effectors_from_EffectorP)
 
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
 stripchart(effector_df$X1 ~ effector_df$X2,
            vertical = TRUE,
            method = "jitter", jitter = 0.2, 
            pch = 16, 
-           col = c("#F0502B",  "#F79552"),
-           bg = rep(c("#F0502B", "#F79552")),
+           col = c("#283666", "#B2933B"),
+           bg = rep(c("#283666", "#B2933B")),
            cex.axis = 0.7,
            ylim=c(0,280), 
            ylab = "Effectors", 
@@ -1319,3 +1888,804 @@ axis(2)
 mtext(text = c("Suillus", "Other ECM"),side=1,at=c(1,2),line = 1, font = 3)
 segments(x0 = .7, y0 =  med3, x1 = 1.3, y1=med3, lwd = 2, col = "black" )
 segments(x0 = 1.7, y0 =  med4, x1 = 2.3, y1=med4, lwd = 2, col = "black" )
+mtext(c("a", "a"),side=1,at=c(1,2),line = -12, font = 3)
+
+#stats on the above
+#test normality 
+shapiro.test(as.numeric(effector_df$X1) [effector_df$X2 == "a_Suillus"])
+#normal
+
+shapiro.test(as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"])
+#normal
+
+#test for equal variance 
+var.test(as.numeric(effector_df$X1 [effector_df$X2 == "a_Suillus"]), 
+         (as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"]))
+#variance equal
+
+#t-test 
+t.test((as.numeric(effector_df$X1) [effector_df$X2 == "a_Suillus"]), (as.numeric(effector_df$X1) [effector_df$X2 == "b_Other"]), var.equal = TRUE)
+#not different
+
+####get p val with a randomization test
+#Randomization test to confirm t-test choice
+n=10000
+rand.dist<-rep(NA,n)
+actual_diff_effectors<- mean(Suillus_ssps$n_effectors_from_EffectorP) - mean(Other_ssps$n_effectors_from_EffectorP)
+
+#generate the list of names to be scrambeled 
+group<-c(rep("a_Suillus",nrow(SSPs_out_of_prot_df_Suillus)),rep("b_Other",nrow(SSPs_out_of_prot_df_Other)))
+
+#attach it to the numbers
+df_to_scramble<-data.frame(effector_df$X1,group)
+attach(df_to_scramble)
+
+for (i in 1:n){
+  sample.group<-sample(group)
+  rand.dist[i]<-mean(as.numeric(effector_df$X1[sample.group=="a_Suillus"])) -
+    mean(as.numeric(effector_df$X1[sample.group=="b_Other"]))
+}
+
+p_value<-mean(abs(rand.dist)>=abs(actual_diff_effectors))
+p_value
+
+#the previous was run using R v. 3.4 - here I switched to R 3.5 to run the coin package
+
+
+
+#load libraries
+library("seqinr")
+library("data.table")
+library("stringr")
+library("car")
+
+options(stringsAsFactors = FALSE)
+setwd("~/Desktop/Project_Suillus_comp_genomics/R")
+
+#read it back in 
+SSPs_coded_within_Suillus<- read.csv("SSPs_coded_within_Suillus.csv")
+
+#split the two data categories for the three groups and get stats for each 
+Red_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="a_Red",]
+White_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="b_White",]
+Larch_df<- SSPs_coded_within_Suillus[SSPs_coded_within_Suillus$group=="c_Larch",]
+
+#means
+Red_genome_size_mean<- mean(Red_df$genome_size)
+White_genome_size_mean<- mean(White_df$genome_size)
+Larch_genome_size_mean<- mean(Larch_df$genome_size)
+
+#SD and SE
+std <- function(x) sd(x)/sqrt(length(x))
+
+Red_genome_size_SD<- sd(Red_df$genome_size)
+Red_genome_size_SE<- std(Red_df$genome_size)  
+
+White_genome_size_SD<- sd(White_df$genome_size)
+White_genome_size_SE<- std(White_df$genome_size)  
+
+Larch_genome_size_SD<- sd(Larch_df$genome_size)
+Larch_genome_size_SE<- std(Larch_df$genome_size)  
+
+all_df<- rbind(Red_df, White_df, Larch_df)
+
+#build model
+genome_size_model <- lm(all_df$genome_size ~ all_df$group)
+
+#test normality and var
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(genome_size_model) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(genome_size_model, lambda = seq(-4, 1, 1/10)) #what does boxcox suggest? log transformation works. 
+
+#log transform to improve normality?
+all_df$genome_size_log<- log(all_df$genome_size)
+
+#see if the ransformation helped
+genome_size_model2 <- lm(all_df$genome_size_log ~ all_df$group)
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(genome_size_model2) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#not a lot, try -2 ==(1/x^2) - inverse square transformation 
+
+all_df$genome_size_inv_suqare<- all_df$genome_size^(-2)
+
+genome_size_model3 <- lm(all_df$genome_size_inv_suqare ~ all_df$group)
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(genome_size_model3) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#that looks a little better 
+
+#Run anova
+summary(aov(genome_size_model3))
+
+####get p val with a randomization test
+
+#load coin
+if(!require(coin)){install.packages("coin")}
+if(!require(FSA)){install.packages("FSA")}
+if(!require(rcompanion)){install.packages("rcompanion")}
+if(!require(multcompView)){install.packages("multcompView")}
+
+#run permutation test with coin for three factors
+library(coin)
+library(multcompView)
+library(multcomp)
+
+#make df
+r_GS<- data.frame(Red_df$genome_size, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$genome_size, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$genome_size, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+####proteins
+#means
+Red_prot_mean<- mean(Red_df$n_proteins_from_gene_cat)
+White_prot_mean<- mean(White_df$n_proteins_from_gene_cat)
+Larch_prot_mean<- mean(Larch_df$n_proteins_from_gene_cat)
+
+#SD and SE
+Red_prot_SD<- sd(Red_df$n_proteins_from_gene_cat)
+Red_prot_SE<- std(Red_df$n_proteins_from_gene_cat)  
+
+White_prot_SD<- sd(White_df$n_proteins_from_gene_cat)
+White_prot_SE<- std(White_df$n_proteins_from_gene_cat)  
+
+Larch_prot_SD<- sd(Larch_df$n_proteins_from_gene_cat)
+Larch_prot_SE<- std(Larch_df$n_proteins_from_gene_cat)  
+
+#build model
+prot_model <- lm(all_df$n_proteins_from_gene_cat ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(prot_model) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(prot_model) #what does boxcox suggest? log transformation works. 
+powerTransform(prot_model) #how about powerTransform? #log should be find for this.
+
+#log transform to improve normality?
+all_df$n_proteins_from_gene_cat_log<- log(all_df$n_proteins_from_gene_cat)
+
+#see if the transformation helped
+prot_model2 <- lm(all_df$n_proteins_from_gene_cat_log ~ all_df$group)
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(prot_model2) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#well, that didn't help...
+
+#try the boc recomended transformation
+prot_model3 <- lm(all_df$n_proteins_from_gene_cat^-.5 ~ all_df$group)
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(prot_model3) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#worse! go back. do not pass go. do not colelct $100. Use original data. 
+
+#run anova
+summary(aov(prot_model))
+#not significant
+
+#make df
+r_GS<- data.frame(Red_df$n_proteins_from_gene_cat, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$n_proteins_from_gene_cat, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$n_proteins_from_gene_cat, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+
+
+
+####SSPs
+#means
+Red_ssp_mean<- mean(Red_df$n_SSPs_signalP_TMHMM_lt_300aa)
+White_ssp_mean<- mean(White_df$n_SSPs_signalP_TMHMM_lt_300aa)
+Larch_ssp_mean<- mean(Larch_df$n_SSPs_signalP_TMHMM_lt_300aa)
+
+#SD and SE
+Red_ssp_SD<- sd(Red_df$n_SSPs_signalP_TMHMM_lt_300aa)
+Red_ssp_SE<- std(Red_df$n_SSPs_signalP_TMHMM_lt_300aa)  
+
+White_ssp_SD<- sd(White_df$n_SSPs_signalP_TMHMM_lt_300aa)
+White_ssp_SE<- std(White_df$n_SSPs_signalP_TMHMM_lt_300aa)  
+
+Larch_ssp_SD<- sd(Larch_df$n_SSPs_signalP_TMHMM_lt_300aa)
+Larch_ssp_SE<- std(Larch_df$n_SSPs_signalP_TMHMM_lt_300aa)  
+
+#build model
+ssp_model <- lm(all_df$n_SSPs_signalP_TMHMM_lt_300aa ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(ssp_model) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(ssp_model, lambda = seq(-6,2,2)) #what does boxcox suggest?  
+powerTransform(ssp_model) #how about powerTransform? # ^-2 is what's recommended 
+
+all_df$n_SSPs_signalP_TMHMM_lt_300aa_inv_square<- all_df$n_SSPs_signalP_TMHMM_lt_300aa^(-2)
+
+ssp_model2 <- lm(all_df$n_SSPs_signalP_TMHMM_lt_300aa_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(ssp_model2) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#looks kinda better
+
+#run anova
+summary(aov(ssp_model2))
+#not significant
+
+
+#make df
+r_GS<- data.frame(Red_df$n_SSPs_signalP_TMHMM_lt_300aa, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$n_SSPs_signalP_TMHMM_lt_300aa, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$n_SSPs_signalP_TMHMM_lt_300aa, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+
+
+####SSSPs
+#means
+Red_ssp_mean<- mean(Red_df$n_SSSPs)
+White_ssp_mean<- mean(White_df$n_SSSPs)
+Larch_ssp_mean<- mean(Larch_df$n_SSSPs)
+
+#SD and SE
+Red_sssp_SD<- sd(Red_df$n_SSSPs)
+Red_sssp_SE<- std(Red_df$n_SSSPs)  
+
+White_sssp_SD<- sd(White_df$n_SSSPs)
+White_sssp_SE<- std(White_df$n_SSSPs)  
+
+Larch_sssp_SD<- sd(Larch_df$n_SSSPs)
+Larch_sssp_SE<- std(Larch_df$n_SSSPs)  
+
+#build model
+sssp_model <- lm(all_df$n_SSSPs ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(sssp_model) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(sssp_model, lambda = seq(-6,2,2)) #what does boxcox suggest?  
+powerTransform(sssp_model) #how about powerTransform? # ^-1 is what's recommended 
+
+#transform
+all_df$n_SSSPs_inv_one<- all_df$n_SSSPs^(-1)
+
+#make new model
+sssp_model2 <- lm(all_df$n_SSSPs_inv_one ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(sssp_model2) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#looks better
+
+#run anova
+summary(aov(sssp_model2))
+#significant!
+
+#what's different?
+sssp_aov<- aov(sssp_model2)
+TukeyHSD(sssp_aov)
+#red and larch are sig. different 
+
+#randomization test make df
+r_GS<- data.frame(Red_df$n_SSSPs, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$n_SSSPs, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$n_SSSPs, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+#significant!
+
+#run tukey equivelent to see whats significant
+#take a look at the medians 
+boxplot(GS ~ group,
+        data = GS_df)
+
+#order them by median (highest to lowest)
+GS_df$group = factor(GS_df$group , 
+                     levels = c("Larch", "White", "Red"))
+
+
+library(FSA)
+headtail(GS_df)
+
+### Pairwise tests
+library(rcompanion)
+
+PT = pairwisePermutationTest(GS ~ group,
+                             data = GS_df,
+                             method="fdr")
+
+PT
+
+
+####Effectors
+#means
+Red_effector_mean<- mean(Red_df$n_effectors_from_EffectorP)
+White_effector_mean<- mean(White_df$n_effectors_from_EffectorP)
+Larch_effector_mean<- mean(Larch_df$n_effectors_from_EffectorP)
+
+#SD and SE
+Red_effector_SD<- sd(Red_df$n_effectors_from_EffectorP)
+Red_effector_SE<- std(Red_df$n_effectors_from_EffectorP)  
+
+White_effector_SD<- sd(White_df$n_effectors_from_EffectorP)
+White_effector_SE<- std(White_df$n_effectors_from_EffectorP)  
+
+Larch_effector_SD<- sd(Larch_df$n_effectors_from_EffectorP)
+Larch_effector_SE<- std(Larch_df$n_effectors_from_EffectorP)  
+
+#build model
+effector_model <- lm(all_df$n_effectors_from_EffectorP ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effector_model) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(effector_model, lambda = seq(-6,2,2)) #what does boxcox suggest?  
+powerTransform(effector_model) #how about powerTransform? # ^-2 is what's recommended 
+
+#transform
+all_df$n_effectors_from_EffectorP_inv_square<- all_df$n_effectors_from_EffectorP^(-2)
+
+#make new model
+effector_model2 <- lm(all_df$n_effectors_from_EffectorP_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effector_model2) #data is non normal with non constant variance
+par(mfrow = c(1,1)) #back to one image per page
+#looks better
+
+#run anova
+summary(aov(effector_model2))
+#not significant
+
+#randomization test make df
+r_GS<- data.frame(Red_df$n_effectors_from_EffectorP, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$n_effectors_from_EffectorP, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$n_effectors_from_EffectorP, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+
+
+##### percentages analysis #####
+
+
+#%SSPs out of all prot.
+#means
+Red_SSP_per_all_prot_mean<- mean(Red_df$percent_SSPs_out_of_total_genes)
+White_SSP_per_all_prot_mean<- mean(White_df$percent_SSPs_out_of_total_genes)
+Larch_SSP_per_all_prot_mean<- mean(Larch_df$percent_SSPs_out_of_total_genes)
+
+#SD and SE
+Red_SSP_per_all_prot_SD<- sd(Red_df$percent_SSPs_out_of_total_genes)
+Red_SSP_per_all_prot_SE<- std(Red_df$percent_SSPs_out_of_total_genes)  
+
+White_SSP_per_all_prot_SD<- sd(White_df$percent_SSPs_out_of_total_genes)
+White_SSP_per_all_prot_SE<- std(White_df$percent_SSPs_out_of_total_genes)  
+
+Larch_SSP_per_all_prot_SD<- sd(Larch_df$percent_SSPs_out_of_total_genes)
+Larch_SSP_per_all_prot_SE<- std(Larch_df$percent_SSPs_out_of_total_genes) 
+
+#build model
+SSP_per_all_prot_model <- lm(all_df$percent_SSPs_out_of_total_genes ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSP_per_all_prot_model) #data is non normal, variance looks ok-ish
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(SSP_per_all_prot_model, lambda = seq(-6,2,2)) #what does boxcox suggest?  
+powerTransform(SSP_per_all_prot_model) #how about powerTransform? # ^-2 is what's recommended 
+
+#transform
+all_df$percent_SSPs_out_of_total_genes_inv_square<- all_df$percent_SSPs_out_of_total_genes^(-2)
+
+#make new model
+SSP_per_all_prot_model2 <- lm(all_df$percent_SSPs_out_of_total_genes_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSP_per_all_prot_model2) #data looks better
+par(mfrow = c(1,1)) #back to one image per page
+#looks better
+
+#run anova
+summary(aov(SSP_per_all_prot_model2))
+#not significant
+
+#randomization test make df
+r_GS<- data.frame(Red_df$percent_SSPs_out_of_total_genes, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$percent_SSPs_out_of_total_genes, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$percent_SSPs_out_of_total_genes, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+#%SSSPs out of SSPs.
+#means
+Red_SSSP_per_SSP_mean<- mean(Red_df$percent_SSSPs_out_of_SSPs)
+White_SSSP_per_SSP_mean<- mean(White_df$percent_SSSPs_out_of_SSPs)
+Larch_SSSP_per_SSP_mean<- mean(Larch_df$percent_SSSPs_out_of_SSPs)
+
+#SD and SE
+Red_SSSP_per_SSP_SD<- sd(Red_df$percent_SSSPs_out_of_SSPs)
+Red_SSSP_per_SSP_SE<- std(Red_df$percent_SSSPs_out_of_SSPs)  
+
+White_SSSP_per_SSP_SD<- sd(White_df$percent_SSSPs_out_of_SSPs)
+White_SSSP_per_SSP_SE<- std(White_df$percent_SSSPs_out_of_SSPs)  
+
+Larch_SSSP_per_SSP_SD<- sd(Larch_df$percent_SSSPs_out_of_SSPs)
+Larch_SSSP_per_SSP_SE<- std(Larch_df$percent_SSSPs_out_of_SSPs) 
+
+#build model
+SSSP_per_SSP_model <- lm(all_df$percent_SSSPs_out_of_SSPs ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(SSSP_per_SSP_model) #data is non normal, variance looks pretty good
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(SSSP_per_SSP_model) #what does boxcox suggest?  
+powerTransform(SSSP_per_SSP_model) #recommended not to transform
+
+#run anova
+summary(aov(SSSP_per_SSP_model))
+#significant! 
+
+#what's different?
+sssp_aov2<- aov(SSSP_per_SSP_model)
+TukeyHSD(sssp_aov2)
+#red and larch are sig. different 
+
+#randomization test make df
+r_GS<- data.frame(Red_df$percent_SSSPs_out_of_SSPs, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$percent_SSSPs_out_of_SSPs, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$percent_SSSPs_out_of_SSPs, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+#significant!
+
+
+#run tukey equivelent to see whats significant
+#take a look at the medians 
+boxplot(GS ~ group,
+        data = GS_df)
+
+#order them by median (highest to lowest)
+GS_df$group = factor(GS_df$group , 
+                     levels = c("Larch", "White", "Red"))
+
+
+library(FSA)
+headtail(GS_df)
+
+### Pairwise tests
+library(rcompanion)
+
+PT = pairwisePermutationTest(GS ~ group,
+                             data = GS_df,
+                             method="fdr")
+
+PT
+
+
+help(pairwisePermutationTest)
+
+
+#Effectors out of SSPs
+#means
+Red_effectors_out_of_SSP_mean<- mean(Red_df$percent_effectors_out_of_SSPs)
+White_effectors_out_of_SSP_mean<- mean(White_df$percent_effectors_out_of_SSPs)
+Larch_effectors_out_of_SSP_mean<- mean(Larch_df$percent_effectors_out_of_SSPs)
+
+#SD and SE
+Red_effectors_out_of_SSP_SD<- sd(Red_df$percent_effectors_out_of_SSPs)
+Red_effectors_out_of_SSP_SE<- std(Red_df$percent_effectors_out_of_SSPs)  
+
+White_effectors_out_of_SSP_SD<- sd(White_df$percent_effectors_out_of_SSPs)
+White_effectors_out_of_SSP_SE<- std(White_df$percent_effectors_out_of_SSPs)  
+
+Larch_effectors_out_of_SSP_SD<- sd(Larch_df$percent_effectors_out_of_SSPs)
+Larch_effectors_out_of_SSP_SE<- std(Larch_df$percent_effectors_out_of_SSPs) 
+
+#build model
+effectors_out_of_SSP_model <- lm(all_df$percent_effectors_out_of_SSPs ~ all_df$group)
+
+#vis normality and variance
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effectors_out_of_SSP_model) #data is non normal, with non-constant variance 
+par(mfrow = c(1,1)) #back to one image per page
+boxCox(effectors_out_of_SSP_model) #what does boxcox suggest?  
+powerTransform(effectors_out_of_SSP_model) #how about powerTransform? # ^-3 is what's recommended, but -2 is in range. 
+
+#transform
+all_df$percent_effectors_out_of_SSPs_inv_square<- all_df$percent_effectors_out_of_SSPs^(-2)
+
+#make new model
+effectors_out_of_SSP_model2 <- lm(all_df$percent_effectors_out_of_SSPs_inv_square ~ all_df$group)
+
+#see if the transformation helped
+par(mfrow = c(2,2)) #prints up to 4 plots on a 2 x 2 page
+plot(effectors_out_of_SSP_model2) #data looks better
+par(mfrow = c(1,1)) #back to one image per page
+#looks better enough 
+
+#run anova
+summary(aov(effectors_out_of_SSP_model2))
+#not significant
+
+#randomization test make df
+r_GS<- data.frame(Red_df$percent_effectors_out_of_SSPs, rep("Red"))
+colnames(r_GS)<- c("GS", "group")
+w_GS<- data.frame(White_df$percent_effectors_out_of_SSPs, rep("White"))
+colnames(w_GS)<- c("GS", "group")
+l_GS<- data.frame(Larch_df$percent_effectors_out_of_SSPs, rep("Larch"))
+colnames(l_GS)<- c("GS", "group")
+#bind them
+GS_df<- rbind(r_GS, w_GS, l_GS)
+#set factors
+#set order of boxes
+GS_df$group <- factor(GS_df$group,levels = c('Red','White', 'Larch'),ordered = TRUE)
+
+#run independence test (this is like an ANOVA)
+independence_test(GS ~ group, 
+                  data = GS_df)
+
+
+
+
+
+
+######## plots start here ########
+#plot of n_SSPs
+
+#means from transformaton 
+Red_df_new<- all_df[all_df$group=="a_Red",]
+White_df_new<- all_df[all_df$group=="b_White",]
+Larch_df_new<- all_df[all_df$group=="c_Larch",]
+
+M_red<- mean(Red_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+M_white<- mean(White_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+M_larch<- mean(Larch_df_new$n_SSPs_signalP_TMHMM_lt_300aa_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_SSPs_signalP_TMHMM_lt_300aa_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,13E-06), 
+           ylab = expression(paste("SSPs"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+###plot of n SSSPs
+
+#means from transformaton 
+M_red<- mean(Red_df_new$n_SSSPs_inv_one)
+M_white<- mean(White_df_new$n_SSSPs_inv_one)
+M_larch<- mean(Larch_df_new$n_SSSPs_inv_one)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_SSSPs_inv_one ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,0.014), 
+           ylab = expression(paste("SSSPs"^-1)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "ab", "b"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot n effectors
+#means from transformaton 
+M_red<- mean(Red_df_new$n_effectors_from_EffectorP_inv_square)
+M_white<- mean(White_df_new$n_effectors_from_EffectorP_inv_square)
+M_larch<- mean(Larch_df_new$n_effectors_from_EffectorP_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$n_effectors_from_EffectorP_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,1.6E-04), 
+           ylab = expression(paste("Effectors"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot %SSPs out of total proteins
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_SSPs_out_of_total_genes_inv_square)
+M_white<- mean(White_df_new$percent_SSPs_out_of_total_genes_inv_square)
+M_larch<- mean(Larch_df_new$percent_SSPs_out_of_total_genes_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_SSPs_out_of_total_genes_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,.4), 
+           ylab = expression(paste("% SSPs out of all proteins"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot %SSSPs out of SSPs
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_SSSPs_out_of_SSPs)
+M_white<- mean(White_df_new$percent_SSSPs_out_of_SSPs)
+M_larch<- mean(Larch_df_new$percent_SSSPs_out_of_SSPs)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_SSSPs_out_of_SSPs ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,50), 
+           ylab = expression(paste("% SSSPs out of SSPs")), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "ab", "b"),side=1,at=c(1,2,3),line = -12, font = 1)
+
+
+### plot % Effectors out of SSPs
+#means from transformaton 
+M_red<- mean(Red_df_new$percent_effectors_out_of_SSPs_inv_square)
+M_white<- mean(White_df_new$percent_effectors_out_of_SSPs_inv_square)
+M_larch<- mean(Larch_df_new$percent_effectors_out_of_SSPs_inv_square)
+
+par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
+stripchart(all_df$percent_effectors_out_of_SSPs_inv_square ~ all_df$group,
+           vertical = TRUE,
+           method = "jitter", jitter = 0.2, 
+           pch = 16, 
+           col = c("#98ABD8", "#566DB4", "#283666"),
+           bg = rep(c("#98ABD8", "#566DB4", "#283666")),
+           cex.axis = 0.7,
+           ylim=c(0,.0016), 
+           ylab = expression(paste("% Effectors out of SSPs"^-2)), 
+           axes = FALSE, 
+           cex = 1.3)
+box()
+axis(2)
+mtext(text = c("Red", "White", "Larch"),side=1,at=c(1,2,3),line = 1, font = 1)
+segments(x0 = .7, y0 =  M_red, x1 = 1.3, y1= M_red, lwd = 2, col = "black" )
+segments(x0 = 1.7, y0 =  M_white, x1 = 2.3, y1= M_white, lwd = 2, col = "black" )
+segments(x0 = 2.7, y0 =  M_larch, x1 = 3.3, y1= M_larch, lwd = 2, col = "black" )
+mtext(c("a", "a", "a"),side=1,at=c(1,2,3),line = -12, font = 1)
