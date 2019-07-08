@@ -3,7 +3,7 @@
 kennedyp/llofgren/COMP/GPCRHMM/gpcrhmm
 
 #remove stop codons
-sed 's/*//g' <species>aa.fasta > <species>_wo_stops.fasta 
+#sed 's/*//g' <species>aa.fasta > <species>_wo_stops.fasta 
 
 #form command line
 #gpcrhmm.pl Suibr0_without_stops.fasta > Suibr0test.fasta
@@ -22,10 +22,10 @@ sed 's/*//g' <species>aa.fasta > <species>_wo_stops.fasta
 #load libraries
 library("seqinr")
 library("plyr")
-library(waffle)
-library(vioplot)
-library(tidyr)
-library(dplyr)
+library("waffle")
+library("vioplot")
+library("tidyr")
+library("dplyr")
 
 
 #data was generated using GPCRHMM
@@ -50,6 +50,9 @@ Suibr2_GPCRHMM<- read.csv("Suibr2_GPCRHMM_output.csv")
 Suibov1_GPCRHMM<- read.csv("Suibov1_GPCRHMM_output.csv")
 Suiamp1_GPCRHMM<- read.csv("Suiamp1_GPCRHMM_output.csv")
 Suiame1_GPCRHMM<- read.csv("Suiame1_GPCRHMM_output.csv")
+Suifus1_GPCRHMM<- read.csv("Suifus1_GPCRHMM_output.csv")
+
+
 #non_Suillus set
 Rhivul1_GPCRHMM<- read.csv("Rhivul1_GPCRHMM_output.csv")
 Rhitru1_GPCRHMM<- read.csv("Rhitru1_GPCRHMM_output.csv")
@@ -60,8 +63,20 @@ Paxin1_GPCRHMM<- read.csv("Paxin1_GPCRHMM_output.csv")
 Pilcr1_GPCRHMM<- read.csv("Pilcr1_GPCRHMM_output.csv")
 Pismi1_GPCRHMM<- read.csv("Pismi1_GPCRHMM_output.csv")
 Sclci1_GPCRHMM<- read.csv("Sclci1_GPCRHMM_output.csv")
-
-
+Cananz1_GPCRHMM<- read.csv("Cananz1_GPCRHMM_output.csv")
+Gyrli1_GPCRHMM<- read.csv("Gyrli1_GPCRHMM_output.csv")
+Gaumor1_GPCRHMM<- read.csv("Gaumor1_GPCRHMM_output.csv")
+Hydru2_GPCRHMM<- read.csv("Hydru2_GPCRHMM_output.csv")
+Hyssto1_GPCRHMM<- read.csv("Hyssto1_GPCRHMM_output.csv")
+Lacam2_GPCRHMM<- read.csv("Lacam2_GPCRHMM_output.csv")
+Pisti1_GPCRHMM<- read.csv("Pisti1_GPCRHMM_output.csv")
+Rusbre1_GPCRHMM<- read.csv("Rusbre1_GPCRHMM_output.csv")
+Ruscom1_GPCRHMM<- read.csv("Ruscom1_GPCRHMM_output.csv")
+Rhisa1_GPCRHMM<- read.csv("Rhisa1_GPCRHMM_output.csv")
+Rhives1_GPCRHMM<- read.csv("Rhives1_GPCRHMM_output.csv")
+Rhivi1_GPCRHMM<- read.csv("Rhivi1_GPCRHMM_output.csv")
+Theter1_GPCRHMM<- read.csv("Theter1_GPCRHMM_output.csv")
+Thega1_GPCRHMM<- read.csv("Thega1_GPCRHMM_output.csv")
 
 
 #shrink files to contain only positive hits
@@ -84,6 +99,7 @@ Suibr2_GPCRHMM_pos<- Suibr2_GPCRHMM[Suibr2_GPCRHMM$pred =='GPCR',]
 Suibov1_GPCRHMM_pos<- Suibov1_GPCRHMM[Suibov1_GPCRHMM$pred =='GPCR',]
 Suiamp1_GPCRHMM_pos<- Suiamp1_GPCRHMM[Suiamp1_GPCRHMM$pred =='GPCR',]
 Suiame1_GPCRHMM_pos<- Suiame1_GPCRHMM[Suiame1_GPCRHMM$pred =='GPCR',]
+Suifus1_GPCRHMM_pos<- Suifus1_GPCRHMM[Suifus1_GPCRHMM$pred =='GPCR',]
 #non-Suillus set
 Rhivul1_GPCRHMM_pos<- Rhivul1_GPCRHMM[Rhivul1_GPCRHMM$pred =='GPCR',]
 Rhitru1_GPCRHMM_pos<- Rhitru1_GPCRHMM[Rhitru1_GPCRHMM$pred =='GPCR',]
@@ -94,6 +110,21 @@ Paxin1_GPCRHMM_pos<- Paxin1_GPCRHMM[Paxin1_GPCRHMM$pred =='GPCR',]
 Pilcr1_GPCRHMM_pos<- Pilcr1_GPCRHMM[Pilcr1_GPCRHMM$pred =='GPCR',]
 Pismi1_GPCRHMM_pos<- Pismi1_GPCRHMM[Pismi1_GPCRHMM$pred =='GPCR',]
 Sclci1_GPCRHMM_pos<- Sclci1_GPCRHMM[Sclci1_GPCRHMM$pred =='GPCR',]
+Cananz1_GPCRHMM_pos<- Cananz1_GPCRHMM[Cananz1_GPCRHMM$pred =='GPCR',]
+Gyrli1_GPCRHMM_pos<- Gyrli1_GPCRHMM[Gyrli1_GPCRHMM$pred =='GPCR',]
+Gaumor1_GPCRHMM_pos<- Gaumor1_GPCRHMM[Gaumor1_GPCRHMM$pred =='GPCR',]
+Hydru2_GPCRHMM_pos<- Hydru2_GPCRHMM[Hydru2_GPCRHMM$pred =='GPCR',]
+Hyssto1_GPCRHMM_pos<- Hyssto1_GPCRHMM[Hyssto1_GPCRHMM$pred =='GPCR',]
+Lacam2_GPCRHMM_pos<- Lacam2_GPCRHMM[Lacam2_GPCRHMM$pred =='GPCR',]
+Pisti1_GPCRHMM_pos<- Pisti1_GPCRHMM[Pisti1_GPCRHMM$pred =='GPCR',]
+Rusbre1_GPCRHMM_pos<- Rusbre1_GPCRHMM[Rusbre1_GPCRHMM$pred =='GPCR',]
+Ruscom1_GPCRHMM_pos<- Ruscom1_GPCRHMM[Ruscom1_GPCRHMM$pred =='GPCR',]
+Rhisa1_GPCRHMM_pos<- Rhisa1_GPCRHMM[Rhisa1_GPCRHMM$pred =='GPCR',]
+Rhives1_GPCRHMM_pos<- Rhives1_GPCRHMM[Rhives1_GPCRHMM$pred =='GPCR',]
+Rhivi1_GPCRHMM_pos<- Rhivi1_GPCRHMM[Rhivi1_GPCRHMM$pred =='GPCR',]
+Theter1_GPCRHMM_pos<- Theter1_GPCRHMM[Theter1_GPCRHMM$pred =='GPCR',]
+Thega1_GPCRHMM_pos<- Thega1_GPCRHMM[Thega1_GPCRHMM$pred =='GPCR',]
+
 
 
 
@@ -105,23 +136,23 @@ Suitom1_in<- seqinr::read.fasta(file = "Suitom1_wo_stops.fasta",
 Suisub1_in<- seqinr::read.fasta(file = "Suisub1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suisu1_in<- seqinr::read.fasta(file = "Suisu1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
-Suipla1_in<- seqinr::read.fasta(file = "Suipla1_wo_stops.fasta", 
                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Suipla1_in<- seqinr::read.fasta(file = "Suipla1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suipic1_in<- seqinr::read.fasta(file = "Suipic1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suipal1_in<- seqinr::read.fasta(file = "Suipal1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suiocc1_in<- seqinr::read.fasta(file = "Suiocc1_wo_stops.fasta", 
-                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suilu4_in<- seqinr::read.fasta(file = "Suilu4_wo_stops.fasta", 
                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suilak1_in<- seqinr::read.fasta(file = "Suilak1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suihi1_in<- seqinr::read.fasta(file = "Suihi1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suigr1_in<- seqinr::read.fasta(file = "Suigr1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suidec1_in<- seqinr::read.fasta(file = "Suidec1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suicot1_in<- seqinr::read.fasta(file = "Suicot1_wo_stops.fasta", 
@@ -129,32 +160,64 @@ Suicot1_in<- seqinr::read.fasta(file = "Suicot1_wo_stops.fasta",
 Suicli1_in<- seqinr::read.fasta(file = "Suicli1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suibr2_in<- seqinr::read.fasta(file = "Suibr2_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suibov1_in<- seqinr::read.fasta(file = "Suibov1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suiamp1_in<- seqinr::read.fasta(file = "Suiamp1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Suiame1_in<- seqinr::read.fasta(file = "Suiame1_wo_stops.fasta", 
-                       seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Suifus1_in<- seqinr::read.fasta(file = "Suifus1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 #non-Suillus set
 Rhivul1_in<- seqinr::read.fasta(file = "Rhivul1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Rhitru1_in<- seqinr::read.fasta(file = "Rhitru1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Amamu1_in<- seqinr::read.fasta(file = "Amamu1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Hebcy2_in<- seqinr::read.fasta(file = "Hebcy2_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Lacbi2_in<- seqinr::read.fasta(file = "Lacbi2_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Paxin1_in<- seqinr::read.fasta(file = "Paxin1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Pilcr1_in<- seqinr::read.fasta(file = "Pilcr1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Pismi1_in<- seqinr::read.fasta(file = "Pismi1_wo_stops.fasta", 
-                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 Sclci1_in<- seqinr::read.fasta(file = "Sclci1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Cananz1_in<- seqinr::read.fasta(file = "Cananz1_wo_stops.fasta", 
                                 seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Gyrli1_in<- seqinr::read.fasta(file = "Gyrli1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Gaumor1_in<- seqinr::read.fasta(file = "Gaumor1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Hydru2_in<- seqinr::read.fasta(file = "Hydru2_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Hyssto1_in<- seqinr::read.fasta(file = "Hyssto1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Lacam2_in<- seqinr::read.fasta(file = "Lacam2_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Pisti1_in<- seqinr::read.fasta(file = "Pisti1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rusbre1_in<- seqinr::read.fasta(file = "Rusbre1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Ruscom1_in<- seqinr::read.fasta(file = "Ruscom1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rhisa1_in<- seqinr::read.fasta(file = "Rhisa1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rhives1_in<- seqinr::read.fasta(file = "Rhives1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Rhivi1_in<- seqinr::read.fasta(file = "Rhivi1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Theter1_in<- seqinr::read.fasta(file = "Theter1_wo_stops.fasta", 
+                               seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+Thega1_in<- seqinr::read.fasta(file = "Thega1_wo_stops.fasta", 
+                                seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+
+
 
 
 #get fastas of only positive hits for GPCR analysis 
@@ -177,6 +240,7 @@ Suibr2_pos_fastas<- Suibr2_in[c(which(names(Suibr2_in) %in% Suibr2_GPCRHMM_pos$S
 Suibov1_pos_fastas<- Suibov1_in[c(which(names(Suibov1_in) %in% Suibov1_GPCRHMM_pos$Sequence_identifier))]
 Suiamp1_pos_fastas<- Suiamp1_in[c(which(names(Suiamp1_in) %in% Suiamp1_GPCRHMM_pos$Sequence_identifier))]
 Suiame1_pos_fastas<- Suiame1_in[c(which(names(Suiame1_in) %in% Suiame1_GPCRHMM_pos$Sequence_identifier))]
+Suifus1_pos_fastas<- Suifus1_in[c(which(names(Suifus1_in) %in% Suifus1_GPCRHMM_pos$Sequence_identifier))]
 #non-Suillus set
 Rhivul1_pos_fastas<- Rhivul1_in[c(which(names(Rhivul1_in) %in% Rhivul1_GPCRHMM_pos$Sequence_identifier))]
 Rhitru1_pos_fastas<- Rhitru1_in[c(which(names(Rhitru1_in) %in% Rhitru1_GPCRHMM_pos$Sequence_identifier))]
@@ -187,6 +251,21 @@ Paxin1_pos_fastas<- Paxin1_in[c(which(names(Paxin1_in) %in% Paxin1_GPCRHMM_pos$S
 Pilcr1_pos_fastas<- Pilcr1_in[c(which(names(Pilcr1_in) %in% Pilcr1_GPCRHMM_pos$Sequence_identifier))]
 Pismi1_pos_fastas<- Pismi1_in[c(which(names(Pismi1_in) %in% Pismi1_GPCRHMM_pos$Sequence_identifier))]
 Sclci1_pos_fastas<- Sclci1_in[c(which(names(Sclci1_in) %in% Sclci1_GPCRHMM_pos$Sequence_identifier))]
+Cananz1_pos_fastas<- Cananz1_in[c(which(names(Cananz1_in) %in% Cananz1_GPCRHMM_pos$Sequence_identifier))]
+Gyrli1_pos_fastas<- Gyrli1_in[c(which(names(Gyrli1_in) %in% Gyrli1_GPCRHMM_pos$Sequence_identifier))]
+Gaumor1_pos_fastas<- Gaumor1_in[c(which(names(Gaumor1_in) %in% Gaumor1_GPCRHMM_pos$Sequence_identifier))]
+Hydru2_pos_fastas<- Hydru2_in[c(which(names(Hydru2_in) %in% Hydru2_GPCRHMM_pos$Sequence_identifier))]
+Hyssto1_pos_fastas<- Hyssto1_in[c(which(names(Hyssto1_in) %in% Hyssto1_GPCRHMM_pos$Sequence_identifier))]
+Lacam2_pos_fastas<- Lacam2_in[c(which(names(Lacam2_in) %in% Lacam2_GPCRHMM_pos$Sequence_identifier))]
+Pisti1_pos_fastas<- Pisti1_in[c(which(names(Pisti1_in) %in% Pisti1_GPCRHMM_pos$Sequence_identifier))]
+Rusbre1_pos_fastas<- Rusbre1_in[c(which(names(Rusbre1_in) %in% Rusbre1_GPCRHMM_pos$Sequence_identifier))]
+Ruscom1_pos_fastas<- Ruscom1_in[c(which(names(Ruscom1_in) %in% Ruscom1_GPCRHMM_pos$Sequence_identifier))]
+Rhisa1_pos_fastas<- Rhisa1_in[c(which(names(Rhisa1_in) %in% Rhisa1_GPCRHMM_pos$Sequence_identifier))]
+Rhives1_pos_fastas<- Rhives1_in[c(which(names(Rhives1_in) %in% Rhives1_GPCRHMM_pos$Sequence_identifier))]
+Rhivi1_pos_fastas<- Rhivi1_in[c(which(names(Rhivi1_in) %in% Rhivi1_GPCRHMM_pos$Sequence_identifier))]
+Theter1_pos_fastas<- Theter1_in[c(which(names(Theter1_in) %in% Theter1_GPCRHMM_pos$Sequence_identifier))]
+Thega1_pos_fastas<- Thega1_in[c(which(names(Thega1_in) %in% Thega1_GPCRHMM_pos$Sequence_identifier))]
+
 
 #print the fastas to files
 write.fasta(Suivar1_pos_fastas, names = names(Suivar1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suivar1_GPCRs_from_GPCRHMM.fasta")
@@ -208,6 +287,8 @@ write.fasta(Suibr2_pos_fastas, names = names(Suibr2_pos_fastas), open = "w", nbc
 write.fasta(Suibov1_pos_fastas, names = names(Suibov1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suibov1_GPCRs_from_GPCRHMM.fasta")
 write.fasta(Suiamp1_pos_fastas, names = names(Suiamp1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiamp1_GPCRs_from_GPCRHMM.fasta")
 write.fasta(Suiame1_pos_fastas, names = names(Suiame1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiame1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Suifus1_pos_fastas, names = names(Suifus1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suifus1_GPCRs_from_GPCRHMM.fasta")
+
 #non_Suillus set
 write.fasta(Rhivul1_pos_fastas, names = names(Rhivul1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhivul1_GPCRs_from_GPCRHMM.fasta")
 write.fasta(Rhitru1_pos_fastas, names = names(Rhitru1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhitru1_GPCRs_from_GPCRHMM.fasta")
@@ -218,6 +299,27 @@ write.fasta(Paxin1_pos_fastas, names = names(Paxin1_pos_fastas), open = "w", nbc
 write.fasta(Pilcr1_pos_fastas, names = names(Pilcr1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pilcr1_GPCRs_from_GPCRHMM.fasta")
 write.fasta(Pismi1_pos_fastas, names = names(Pismi1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pismi1_GPCRs_from_GPCRHMM.fasta")
 write.fasta(Sclci1_pos_fastas, names = names(Sclci1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Sclci1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Cananz1_pos_fastas, names = names(Cananz1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Cananz1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Gyrli1_pos_fastas, names = names(Gyrli1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Gyrli1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Gaumor1_pos_fastas, names = names(Gaumor1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Gaumor1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Hydru2_pos_fastas, names = names(Hydru2_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Hydru2_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Hyssto1_pos_fastas, names = names(Hyssto1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Hyssto1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Lacam2_pos_fastas, names = names(Lacam2_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Lacam2_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Pisti1_pos_fastas, names = names(Pisti1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pisti1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Rusbre1_pos_fastas, names = names(Rusbre1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rusbre1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Ruscom1_pos_fastas, names = names(Ruscom1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Ruscom1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Rhisa1_pos_fastas, names = names(Rhisa1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhisa1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Rhives1_pos_fastas, names = names(Rhives1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhives1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Rhivi1_pos_fastas, names = names(Rhivi1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhivi1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Theter1_pos_fastas, names = names(Theter1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Theter1_GPCRs_from_GPCRHMM.fasta")
+write.fasta(Thega1_pos_fastas, names = names(Thega1_pos_fastas), open = "w", nbchar = 60, as.string = FALSE, file.out = "Thega1_GPCRs_from_GPCRHMM.fasta")
+
+
+
+
+##you are here in updated species list parcing analysis...
+
+
 
 
 #######
@@ -245,8 +347,6 @@ write.fasta(Sclci1_pos_fastas, names = names(Sclci1_pos_fastas), open = "w", nbc
 #get only the subset of seqs that have 7 TMH's
 
 
-
-
 #read in files 
 Suivar1_TMHMM<- data.frame(read.csv("Suivar1_TMHMM_output.txt", col.names = "header"))
 Suitom1_TMHMM<- data.frame(read.csv("Suitom1_TMHMM_output.txt", col.names = "header"))
@@ -267,6 +367,8 @@ Suibr2_TMHMM<- data.frame(read.csv("Suibr2_TMHMM_output.txt", col.names = "heade
 Suibov1_TMHMM<- data.frame(read.csv("Suibov1_TMHMM_output.txt", col.names = "header"))
 Suiamp1_TMHMM<- data.frame(read.csv("Suiamp1_TMHMM_output.txt", col.names = "header"))
 Suiame1_TMHMM<- data.frame(read.csv("Suiame1_TMHMM_output.txt", col.names = "header"))
+Suifus1_TMHMM<- data.frame(read.csv("Suifus1_TMHMM_output.txt", col.names = "header"))
+
 #non_Suillus set
 Rhivul1_TMHMM<- data.frame(read.csv("Rhivul1_TMHMM_output.txt", col.names = "header"))
 Rhitru1_TMHMM<- data.frame(read.csv("Rhitru1_TMHMM_output.txt", col.names = "header"))
@@ -277,6 +379,20 @@ Paxin1_TMHMM<- data.frame(read.csv("Paxin1_TMHMM_output.txt", col.names = "heade
 Pilcr1_TMHMM<- data.frame(read.csv("Pilcr1_TMHMM_output.txt", col.names = "header"))
 Pismi1_TMHMM<- data.frame(read.csv("Pismi1_TMHMM_output.txt", col.names = "header"))
 Sclci1_TMHMM<- data.frame(read.csv("Sclci1_TMHMM_output.txt", col.names = "header"))
+Cananz1_TMHMM<- data.frame(read.csv("Cananz1_TMHMM_output.txt", col.names = "header"))
+Gyrli1_TMHMM<- data.frame(read.csv("Gyrli1_TMHMM_output.txt", col.names = "header"))
+Gaumor1_TMHMM<- data.frame(read.csv("Gaumor1_TMHMM_output.txt", col.names = "header"))
+Hydru2_TMHMM<- data.frame(read.csv("Hydru2_TMHMM_output.txt", col.names = "header"))
+Hyssto1_TMHMM<- data.frame(read.csv("Hyssto1_TMHMM_output.txt", col.names = "header"))
+Lacam2_TMHMM<- data.frame(read.csv("Lacam2_TMHMM_output.txt", col.names = "header"))
+Pisti1_TMHMM<- data.frame(read.csv("Pisti1_TMHMM_output.txt", col.names = "header"))
+Rusbre1_TMHMM<- data.frame(read.csv("Rusbre1_TMHMM_output.txt", col.names = "header"))
+Ruscom1_TMHMM<- data.frame(read.csv("Ruscom1_TMHMM_output.txt", col.names = "header"))
+Rhisa1_TMHMM<- data.frame(read.csv("Rhisa1_TMHMM_output.txt", col.names = "header"))
+Rhives1_TMHMM<- data.frame(read.csv("Rhives1_TMHMM_output.txt", col.names = "header"))
+Rhivi1_TMHMM<- data.frame(read.csv("Rhivi1_TMHMM_output.txt", col.names = "header"))
+Theter1_TMHMM<- data.frame(read.csv("Theter1_TMHMM_output.txt", col.names = "header"))
+Thega1_TMHMM<- data.frame(read.csv("Thega1_TMHMM_output.txt", col.names = "header"))
 
 
 #isolate hashed lines with relevent info
@@ -299,6 +415,7 @@ Suibr2_TMHMM_sm<- data.frame(Suibr2_TMHMM[ grep("Number of predicted TMHs:  7", 
 Suibov1_TMHMM_sm<- data.frame(Suibov1_TMHMM[ grep("Number of predicted TMHs:  7", Suibov1_TMHMM$header),])
 Suiamp1_TMHMM_sm<- data.frame(Suiamp1_TMHMM[ grep("Number of predicted TMHs:  7", Suiamp1_TMHMM$header),])
 Suiame1_TMHMM_sm<- data.frame(Suiame1_TMHMM[ grep("Number of predicted TMHs:  7", Suiame1_TMHMM$header),])
+Suifus1_TMHMM_sm<- data.frame(Suifus1_TMHMM[ grep("Number of predicted TMHs:  7", Suifus1_TMHMM$header),])
 #non_Suillus set
 Rhivul1_TMHMM_sm<- data.frame(Rhivul1_TMHMM[ grep("Number of predicted TMHs:  7", Rhivul1_TMHMM$header),])
 Rhitru1_TMHMM_sm<- data.frame(Rhitru1_TMHMM[ grep("Number of predicted TMHs:  7", Rhitru1_TMHMM$header),])
@@ -309,6 +426,21 @@ Paxin1_TMHMM_sm<- data.frame(Paxin1_TMHMM[ grep("Number of predicted TMHs:  7", 
 Pilcr1_TMHMM_sm<- data.frame(Pilcr1_TMHMM[ grep("Number of predicted TMHs:  7", Pilcr1_TMHMM$header),])
 Pismi1_TMHMM_sm<- data.frame(Pismi1_TMHMM[ grep("Number of predicted TMHs:  7", Pismi1_TMHMM$header),])
 Sclci1_TMHMM_sm<- data.frame(Sclci1_TMHMM[ grep("Number of predicted TMHs:  7", Sclci1_TMHMM$header),])
+Cananz1_TMHMM_sm<- data.frame(Cananz1_TMHMM[ grep("Number of predicted TMHs:  7", Cananz1_TMHMM$header),])
+Gyrli1_TMHMM_sm<- data.frame(Gyrli1_TMHMM[ grep("Number of predicted TMHs:  7", Gyrli1_TMHMM$header),])
+Gaumor1_TMHMM_sm<- data.frame(Gaumor1_TMHMM[ grep("Number of predicted TMHs:  7", Gaumor1_TMHMM$header),])
+Hydru2_TMHMM_sm<- data.frame(Hydru2_TMHMM[ grep("Number of predicted TMHs:  7", Hydru2_TMHMM$header),])
+Hyssto1_TMHMM_sm<- data.frame(Hyssto1_TMHMM[ grep("Number of predicted TMHs:  7", Hyssto1_TMHMM$header),])
+Lacam2_TMHMM_sm<- data.frame(Lacam2_TMHMM[ grep("Number of predicted TMHs:  7", Lacam2_TMHMM$header),])
+Pisti1_TMHMM_sm<- data.frame(Pisti1_TMHMM[ grep("Number of predicted TMHs:  7", Pisti1_TMHMM$header),])
+Rusbre1_TMHMM_sm<- data.frame(Rusbre1_TMHMM[ grep("Number of predicted TMHs:  7", Rusbre1_TMHMM$header),])
+Ruscom1_TMHMM_sm<- data.frame(Ruscom1_TMHMM[ grep("Number of predicted TMHs:  7", Ruscom1_TMHMM$header),])
+Rhisa1_TMHMM_sm<- data.frame(Rhisa1_TMHMM[ grep("Number of predicted TMHs:  7", Rhisa1_TMHMM$header),])
+Rhives1_TMHMM_sm<- data.frame(Rhives1_TMHMM[ grep("Number of predicted TMHs:  7", Rhives1_TMHMM$header),])
+Rhivi1_TMHMM_sm<- data.frame(Rhivi1_TMHMM[ grep("Number of predicted TMHs:  7", Rhivi1_TMHMM$header),])
+Theter1_TMHMM_sm<- data.frame(Theter1_TMHMM[ grep("Number of predicted TMHs:  7", Theter1_TMHMM$header),])
+Thega1_TMHMM_sm<- data.frame(Thega1_TMHMM[ grep("Number of predicted TMHs:  7", Thega1_TMHMM$header),])
+
 
 
 #######
@@ -326,6 +458,8 @@ Sclci1_TMHMM_sm<- data.frame(Sclci1_TMHMM[ grep("Number of predicted TMHs:  7", 
 #to get a list of options you can run:
 #perl /panfs/roc/msisoft/phobius/1.01/phobius.pl -h
 #######
+
+
 
 #read in phobius output files 
 Suivar1_Phobius<- data.frame(read.csv("Phobius_Suivar1_output.txt", sep = "", header = TRUE, fill = TRUE))
@@ -347,6 +481,8 @@ Suibr2_Phobius<- data.frame(read.csv("Phobius_Suibr2_output.txt", sep = "", head
 Suibov1_Phobius<- data.frame(read.csv("Phobius_Suibov1_output.txt", sep = "", header = TRUE, fill = TRUE))
 Suiamp1_Phobius<- data.frame(read.csv("Phobius_Suiamp1_output.txt", sep = "", header = TRUE, fill = TRUE))
 Suiame1_Phobius<- data.frame(read.csv("Phobius_Suiame1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Suifus1_Phobius<- data.frame(read.csv("Phobius_Suifus1_output.txt", sep = "", header = TRUE, fill = TRUE))
+
 #non_Suillus set
 Rhivul1_Phobius<- data.frame(read.csv("Phobius_Rhivul1_output.txt", sep = "", header = TRUE, fill = TRUE))
 Rhitru1_Phobius<- data.frame(read.csv("Phobius_Rhitru1_output.txt", sep = "", header = TRUE, fill = TRUE))
@@ -357,6 +493,20 @@ Paxin1_Phobius<- data.frame(read.csv("Phobius_Paxin1_output.txt", sep = "", head
 Pilcr1_Phobius<- data.frame(read.csv("Phobius_Pilcr1_output.txt", sep = "", header = TRUE, fill = TRUE))
 Pismi1_Phobius<- data.frame(read.csv("Phobius_Pismi1_output.txt", sep = "", header = TRUE, fill = TRUE))
 Sclci1_Phobius<- data.frame(read.csv("Phobius_Sclci1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Cananz1_Phobius<- data.frame(read.csv("Phobius_Cananz1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Gyrli1_Phobius<- data.frame(read.csv("Phobius_Gyrli1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Gaumor1_Phobius<- data.frame(read.csv("Phobius_Gaumor1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Hydru2_Phobius<- data.frame(read.csv("Phobius_Hydru2_output.txt", sep = "", header = TRUE, fill = TRUE))
+Hyssto1_Phobius<- data.frame(read.csv("Phobius_Hyssto1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Lacam2_Phobius<- data.frame(read.csv("Phobius_Lacam2_output.txt", sep = "", header = TRUE, fill = TRUE))
+Pisti1_Phobius<- data.frame(read.csv("Phobius_Pisti1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Rusbre1_Phobius<- data.frame(read.csv("Phobius_Rusbre1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Ruscom1_Phobius<- data.frame(read.csv("Phobius_Ruscom1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Rhisa1_Phobius<- data.frame(read.csv("Phobius_Rhisa1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Rhives1_Phobius<- data.frame(read.csv("Phobius_Rhives1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Rhivi1_Phobius<- data.frame(read.csv("Phobius_Rhivi1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Theter1_Phobius<- data.frame(read.csv("Phobius_Theter1_output.txt", sep = "", header = TRUE, fill = TRUE))
+Thega1_Phobius<- data.frame(read.csv("Phobius_Thega1_output.txt", sep = "", header = TRUE, fill = TRUE))
 
 
 #get supset of each dataframe where TM == 7 and == 0
@@ -416,6 +566,11 @@ Suiamp1_Phobius_sm<- data.frame(Suiamp1_Phobius_sm1[ grep("0", Suiamp1_Phobius_s
 
 Suiame1_Phobius_sm1<- data.frame(Suiame1_Phobius[ grep("7", Suiame1_Phobius$TM),])
 Suiame1_Phobius_sm<- data.frame(Suiame1_Phobius_sm1[ grep("0", Suiame1_Phobius_sm1$SP),])
+
+Suifus1_Phobius_sm1<- data.frame(Suifus1_Phobius[ grep("7", Suifus1_Phobius$TM),])
+Suifus1_Phobius_sm<- data.frame(Suifus1_Phobius_sm1[ grep("0", Suifus1_Phobius_sm1$SP),])
+
+
 #non_Suillus set
 Rhivul1_Phobius_sm1<- data.frame(Rhivul1_Phobius[ grep("7", Rhivul1_Phobius$TM),])
 Rhivul1_Phobius_sm<- data.frame(Rhivul1_Phobius_sm1[ grep("0", Rhivul1_Phobius_sm1$SP),])
@@ -444,6 +599,47 @@ Pismi1_Phobius_sm<- data.frame(Pismi1_Phobius_sm1[ grep("0", Pismi1_Phobius_sm1$
 Sclci1_Phobius_sm1<- data.frame(Sclci1_Phobius[ grep("7", Sclci1_Phobius$TM),])
 Sclci1_Phobius_sm<- data.frame(Sclci1_Phobius_sm1[ grep("0", Sclci1_Phobius_sm1$SP),])
 
+Cananz1_Phobius_sm1<- data.frame(Cananz1_Phobius[ grep("7", Cananz1_Phobius$TM),])
+Cananz1_Phobius_sm<- data.frame(Cananz1_Phobius_sm1[ grep("0", Cananz1_Phobius_sm1$SP),])
+
+Gyrli1_Phobius_sm1<- data.frame(Gyrli1_Phobius[ grep("7", Gyrli1_Phobius$TM),])
+Gyrli1_Phobius_sm<- data.frame(Gyrli1_Phobius_sm1[ grep("0", Gyrli1_Phobius_sm1$SP),])
+
+Gaumor1_Phobius_sm1<- data.frame(Gaumor1_Phobius[ grep("7", Gaumor1_Phobius$TM),])
+Gaumor1_Phobius_sm<- data.frame(Gaumor1_Phobius_sm1[ grep("0", Gaumor1_Phobius_sm1$SP),])
+
+Hydru2_Phobius_sm1<- data.frame(Hydru2_Phobius[ grep("7", Hydru2_Phobius$TM),])
+Hydru2_Phobius_sm<- data.frame(Hydru2_Phobius_sm1[ grep("0", Hydru2_Phobius_sm1$SP),])
+
+Hyssto1_Phobius_sm1<- data.frame(Hyssto1_Phobius[ grep("7", Hyssto1_Phobius$TM),])
+Hyssto1_Phobius_sm<- data.frame(Hyssto1_Phobius_sm1[ grep("0", Hyssto1_Phobius_sm1$SP),])
+
+Lacam2_Phobius_sm1<- data.frame(Lacam2_Phobius[ grep("7", Lacam2_Phobius$TM),])
+Lacam2_Phobius_sm<- data.frame(Lacam2_Phobius_sm1[ grep("0", Lacam2_Phobius_sm1$SP),])
+
+Pisti1_Phobius_sm1<- data.frame(Pisti1_Phobius[ grep("7", Pisti1_Phobius$TM),])
+Pisti1_Phobius_sm<- data.frame(Pisti1_Phobius_sm1[ grep("0", Pisti1_Phobius_sm1$SP),])
+
+Rusbre1_Phobius_sm1<- data.frame(Rusbre1_Phobius[ grep("7", Rusbre1_Phobius$TM),])
+Rusbre1_Phobius_sm<- data.frame(Rusbre1_Phobius_sm1[ grep("0", Rusbre1_Phobius_sm1$SP),])
+
+Ruscom1_Phobius_sm1<- data.frame(Ruscom1_Phobius[ grep("7", Ruscom1_Phobius$TM),])
+Ruscom1_Phobius_sm<- data.frame(Ruscom1_Phobius_sm1[ grep("0", Ruscom1_Phobius_sm1$SP),])
+
+Rhisa1_Phobius_sm1<- data.frame(Rhisa1_Phobius[ grep("7", Rhisa1_Phobius$TM),])
+Rhisa1_Phobius_sm<- data.frame(Rhisa1_Phobius_sm1[ grep("0", Rhisa1_Phobius_sm1$SP),])
+
+Rhives1_Phobius_sm1<- data.frame(Rhives1_Phobius[ grep("7", Rhives1_Phobius$TM),])
+Rhives1_Phobius_sm<- data.frame(Rhives1_Phobius_sm1[ grep("0", Rhives1_Phobius_sm1$SP),])
+
+Rhivi1_Phobius_sm1<- data.frame(Rhivi1_Phobius[ grep("7", Rhivi1_Phobius$TM),])
+Rhivi1_Phobius_sm<- data.frame(Rhivi1_Phobius_sm1[ grep("0", Rhivi1_Phobius_sm1$SP),])
+
+Theter1_Phobius_sm1<- data.frame(Theter1_Phobius[ grep("7", Theter1_Phobius$TM),])
+Theter1_Phobius_sm<- data.frame(Theter1_Phobius_sm1[ grep("0", Theter1_Phobius_sm1$SP),])
+
+Thega1_Phobius_sm1<- data.frame(Thega1_Phobius[ grep("7", Thega1_Phobius$TM),])
+Thega1_Phobius_sm<- data.frame(Thega1_Phobius_sm1[ grep("0", Thega1_Phobius_sm1$SP),])
 
 #get summary numbers for how many GPCR's were predicted with GPCRHMM 
 Suivar1<- length(Suivar1_pos_fastas)
@@ -465,6 +661,7 @@ Suibr2<- length(Suibr2_pos_fastas)
 Suibov1<- length(Suibov1_pos_fastas)
 Suiamp1<- length(Suiamp1_pos_fastas)
 Suiame1<- length(Suiame1_pos_fastas)
+Suifus1<- length(Suifus1_pos_fastas)
 #non_Suillus set
 Rhivul1<- length(Rhivul1_pos_fastas)
 Rhitru1<- length(Rhitru1_pos_fastas)
@@ -475,6 +672,22 @@ Paxin1<- length(Paxin1_pos_fastas)
 Pilcr1<- length(Pilcr1_pos_fastas)
 Pismi1<- length(Pismi1_pos_fastas)
 Sclci1<- length(Sclci1_pos_fastas)
+Cananz1<- length(Cananz1_pos_fastas)
+Gyrli1<- length(Gyrli1_pos_fastas)
+Gaumor1<- length(Gaumor1_pos_fastas)
+Hydru2<- length(Hydru2_pos_fastas)
+Hyssto1<- length(Hyssto1_pos_fastas)
+Lacam2<- length(Lacam2_pos_fastas)
+Pisti1<- length(Pisti1_pos_fastas)
+Rusbre1<- length(Rusbre1_pos_fastas)
+Ruscom1<- length(Ruscom1_pos_fastas)
+Rhisa1<- length(Rhisa1_pos_fastas)
+Rhives1<- length(Rhives1_pos_fastas)
+Rhivi1<- length(Rhivi1_pos_fastas)
+Theter1<- length(Theter1_pos_fastas)
+Thega1<- length(Thega1_pos_fastas)
+
+
 
 totals.1<- data.frame(cbind(Suivar1, 
                             Suitom1, 
@@ -494,7 +707,8 @@ totals.1<- data.frame(cbind(Suivar1,
                             Suibr2, 
                             Suibov1, 
                             Suiamp1, 
-                            Suiame1, 
+                            Suiame1,
+                            Suifus1,
                             Rhivul1,
                             Rhitru1,
                             Amamu1,
@@ -503,7 +717,21 @@ totals.1<- data.frame(cbind(Suivar1,
                             Paxin1,
                             Pilcr1,
                             Pismi1,
-                            Sclci1),
+                            Sclci1,
+                            Cananz1,
+                            Gyrli1,
+                            Gaumor1,
+                            Hydru2,
+                            Hyssto1,
+                            Lacam2,
+                            Pisti1,
+                            Rusbre1,
+                            Ruscom1,
+                            Rhisa1,
+                            Rhives1,
+                            Rhivi1,
+                            Theter1,
+                            Thega1),
                       row.names = "#GPCR's_w_GPCRHMM")
 
 
@@ -527,6 +755,7 @@ Suibr2<- nrow(Suibr2_TMHMM_sm)
 Suibov1<- nrow(Suibov1_TMHMM_sm)
 Suiamp1<- nrow(Suiamp1_TMHMM_sm)
 Suiame1<- nrow(Suiame1_TMHMM_sm)
+Suifus1<- nrow(Suifus1_TMHMM_sm)
 #non_Suillus set
 Rhivul1<- nrow(Rhivul1_TMHMM_sm)
 Rhitru1<- nrow(Rhitru1_TMHMM_sm)
@@ -537,6 +766,22 @@ Paxin1<- nrow(Paxin1_TMHMM_sm)
 Pilcr1<- nrow(Pilcr1_TMHMM_sm)
 Pismi1<- nrow(Pismi1_TMHMM_sm)
 Sclci1<- nrow(Sclci1_TMHMM_sm)
+Cananz1<- nrow(Cananz1_TMHMM_sm)
+Gyrli1<- nrow(Gyrli1_TMHMM_sm)
+Gaumor1<- nrow(Gaumor1_TMHMM_sm)
+Hydru2<- nrow(Hydru2_TMHMM_sm)
+Hyssto1<- nrow(Hyssto1_TMHMM_sm)
+Lacam2<- nrow(Lacam2_TMHMM_sm)
+Pisti1<- nrow(Pisti1_TMHMM_sm)
+Rusbre1<- nrow(Rusbre1_TMHMM_sm)
+Ruscom1<- nrow(Ruscom1_TMHMM_sm)
+Rhisa1<- nrow(Rhisa1_TMHMM_sm)
+Rhives1<- nrow(Rhives1_TMHMM_sm)
+Rhivi1<- nrow(Rhivi1_TMHMM_sm)
+Theter1<- nrow(Theter1_TMHMM_sm)
+Thega1<- nrow(Thega1_TMHMM_sm)
+
+
 
 totals.2<- data.frame(cbind(Suivar1, 
                             Suitom1, 
@@ -556,7 +801,8 @@ totals.2<- data.frame(cbind(Suivar1,
                             Suibr2, 
                             Suibov1, 
                             Suiamp1, 
-                            Suiame1, 
+                            Suiame1,
+                            Suifus1,
                             Rhivul1,
                             Rhitru1,
                             Amamu1,
@@ -565,7 +811,21 @@ totals.2<- data.frame(cbind(Suivar1,
                             Paxin1,
                             Pilcr1,
                             Pismi1,
-                            Sclci1),
+                            Sclci1,
+                            Cananz1,
+                            Gyrli1,
+                            Gaumor1,
+                            Hydru2,
+                            Hyssto1,
+                            Lacam2,
+                            Pisti1,
+                            Rusbre1,
+                            Ruscom1,
+                            Rhisa1,
+                            Rhives1,
+                            Rhivi1,
+                            Theter1,
+                            Thega1),
                       row.names = "#GPCR's_w_GPCRHMM_and_TMHMM")
 
 #get summary numbers for just the GPCRHMM + Phobius parcing 
@@ -588,6 +848,7 @@ Suibr2<- nrow(Suibr2_Phobius_sm)
 Suibov1<- nrow(Suibov1_Phobius_sm)
 Suiamp1<- nrow(Suiamp1_Phobius_sm)
 Suiame1<- nrow(Suiame1_Phobius_sm)
+Suifus1<- nrow(Suifus1_Phobius_sm)
 #non_Suillus set
 Rhivul1<- nrow(Rhivul1_Phobius_sm)
 Rhitru1<- nrow(Rhitru1_Phobius_sm)
@@ -598,6 +859,21 @@ Paxin1<- nrow(Paxin1_Phobius_sm)
 Pilcr1<- nrow(Pilcr1_Phobius_sm)
 Pismi1<- nrow(Pismi1_Phobius_sm)
 Sclci1<- nrow(Sclci1_Phobius_sm)
+Cananz1<- nrow(Cananz1_Phobius_sm)
+Gyrli1<- nrow(Gyrli1_Phobius_sm)
+Gaumor1<- nrow(Gaumor1_Phobius_sm)
+Hydru2<- nrow(Hydru2_Phobius_sm)
+Hyssto1<- nrow(Hyssto1_Phobius_sm)
+Lacam2<- nrow(Lacam2_Phobius_sm)
+Pisti1<- nrow(Pisti1_Phobius_sm)
+Rusbre1<- nrow(Rusbre1_Phobius_sm)
+Ruscom1<- nrow(Ruscom1_Phobius_sm)
+Rhisa1<- nrow(Rhisa1_Phobius_sm)
+Rhives1<- nrow(Rhives1_Phobius_sm)
+Rhivi1<- nrow(Rhivi1_Phobius_sm)
+Theter1<- nrow(Theter1_Phobius_sm)
+Thega1<- nrow(Thega1_Phobius_sm)
+
 
 totals.3<- data.frame(cbind(Suivar1, 
                             Suitom1, 
@@ -617,7 +893,8 @@ totals.3<- data.frame(cbind(Suivar1,
                             Suibr2, 
                             Suibov1, 
                             Suiamp1, 
-                            Suiame1, 
+                            Suiame1,
+                            Suifus1,
                             Rhivul1,
                             Rhitru1,
                             Amamu1,
@@ -626,16 +903,32 @@ totals.3<- data.frame(cbind(Suivar1,
                             Paxin1,
                             Pilcr1,
                             Pismi1,
-                            Sclci1),
+                            Sclci1,
+                            Cananz1,
+                            Gyrli1,
+                            Gaumor1,
+                            Hydru2,
+                            Hyssto1,
+                            Lacam2,
+                            Pisti1,
+                            Rusbre1,
+                            Ruscom1,
+                            Rhisa1,
+                            Rhives1,
+                            Rhivi1,
+                            Theter1,
+                            Thega1),
                       row.names = "#GPCR's_w_GPCRHMM_and_Phobius")
-  
+
 #write out totals to a file
 results<- rbind(totals.1, totals.2, totals.3)
 
-write.csv(results, quote = FALSE, file = "GPCR_totals.csv")
+write.csv(results, quote = FALSE, file = "GPCR_totals_alloutgroups.csv")
 
 
-#Get fastas of the positive phobius results to run in GPCR-CA
+
+
+#Get fastas of the positive phobius results to run in GPCR-CA and pull p-fams
 Suivar1_pos_fastas_from_Phobius<- Suivar1_in[c(which(names(Suivar1_in) %in% Suivar1_Phobius_sm$SEQENCE_ID))]
 Suitom1_pos_fastas_from_Phobius<- Suitom1_in[c(which(names(Suitom1_in) %in% Suitom1_Phobius_sm$SEQENCE_ID))]
 Suisub1_pos_fastas_from_Phobius<- Suisub1_in[c(which(names(Suisub1_in) %in% Suisub1_Phobius_sm$SEQENCE_ID))]
@@ -655,6 +948,8 @@ Suibr2_pos_fastas_from_Phobius<- Suibr2_in[c(which(names(Suibr2_in) %in% Suibr2_
 Suibov1_pos_fastas_from_Phobius<- Suibov1_in[c(which(names(Suibov1_in) %in% Suibov1_Phobius_sm$SEQENCE_ID))]
 Suiamp1_pos_fastas_from_Phobius<- Suiamp1_in[c(which(names(Suiamp1_in) %in% Suiamp1_Phobius_sm$SEQENCE_ID))]
 Suiame1_pos_fastas_from_Phobius<- Suiame1_in[c(which(names(Suiame1_in) %in% Suiame1_Phobius_sm$SEQENCE_ID))]
+Suifus1_pos_fastas_from_Phobius<- Suifus1_in[c(which(names(Suifus1_in) %in% Suifus1_Phobius_sm$SEQENCE_ID))]
+
 #non-Suillus set
 Rhivul1_pos_fastas_from_Phobius<- Rhivul1_in[c(which(names(Rhivul1_in) %in% Rhivul1_Phobius_sm$SEQENCE_ID))]
 Rhitru1_pos_fastas_from_Phobius<- Rhitru1_in[c(which(names(Rhitru1_in) %in% Rhitru1_Phobius_sm$SEQENCE_ID))]
@@ -665,8 +960,23 @@ Paxin1_pos_fastas_from_Phobius<- Paxin1_in[c(which(names(Paxin1_in) %in% Paxin1_
 Pilcr1_pos_fastas_from_Phobius<- Pilcr1_in[c(which(names(Pilcr1_in) %in% Pilcr1_Phobius_sm$SEQENCE_ID))]
 Pismi1_pos_fastas_from_Phobius<- Pismi1_in[c(which(names(Pismi1_in) %in% Pismi1_Phobius_sm$SEQENCE_ID))]
 Sclci1_pos_fastas_from_Phobius<- Sclci1_in[c(which(names(Sclci1_in) %in% Sclci1_Phobius_sm$SEQENCE_ID))]
+Cananz1_pos_fastas_from_Phobius<- Cananz1_in[c(which(names(Cananz1_in) %in% Cananz1_Phobius_sm$SEQENCE_ID))]
+Gyrli1_pos_fastas_from_Phobius<- Gyrli1_in[c(which(names(Gyrli1_in) %in% Gyrli1_Phobius_sm$SEQENCE_ID))]
+Gaumor1_pos_fastas_from_Phobius<- Gaumor1_in[c(which(names(Gaumor1_in) %in% Gaumor1_Phobius_sm$SEQENCE_ID))]
+Hydru2_pos_fastas_from_Phobius<- Hydru2_in[c(which(names(Hydru2_in) %in% Hydru2_Phobius_sm$SEQENCE_ID))]
+Hyssto1_pos_fastas_from_Phobius<- Hyssto1_in[c(which(names(Hyssto1_in) %in% Hyssto1_Phobius_sm$SEQENCE_ID))]
+Lacam2_pos_fastas_from_Phobius<- Lacam2_in[c(which(names(Lacam2_in) %in% Lacam2_Phobius_sm$SEQENCE_ID))]
+Pisti1_pos_fastas_from_Phobius<- Pisti1_in[c(which(names(Pisti1_in) %in% Pisti1_Phobius_sm$SEQENCE_ID))]
+Rusbre1_pos_fastas_from_Phobius<- Rusbre1_in[c(which(names(Rusbre1_in) %in% Rusbre1_Phobius_sm$SEQENCE_ID))]
+Ruscom1_pos_fastas_from_Phobius<- Ruscom1_in[c(which(names(Ruscom1_in) %in% Ruscom1_Phobius_sm$SEQENCE_ID))]
+Rhisa1_pos_fastas_from_Phobius<- Rhisa1_in[c(which(names(Rhisa1_in) %in% Rhisa1_Phobius_sm$SEQENCE_ID))]
+Rhives1_pos_fastas_from_Phobius<- Rhives1_in[c(which(names(Rhives1_in) %in% Rhives1_Phobius_sm$SEQENCE_ID))]
+Rhivi1_pos_fastas_from_Phobius<- Rhivi1_in[c(which(names(Rhivi1_in) %in% Rhivi1_Phobius_sm$SEQENCE_ID))]
+Theter1_pos_fastas_from_Phobius<- Theter1_in[c(which(names(Theter1_in) %in% Theter1_Phobius_sm$SEQENCE_ID))]
+Thega1_pos_fastas_from_Phobius<- Thega1_in[c(which(names(Thega1_in) %in% Thega1_Phobius_sm$SEQENCE_ID))]
 
-#print the fastas of the positive phobius results to run in GPCR-CA
+
+#print the fastas of the positive phobius results to run in GPCR-CA + pull pfams
 write.fasta(Suivar1_pos_fastas_from_Phobius, names = names(Suivar1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suivar1_GPCRs_from_Phobius.fasta")
 write.fasta(Suitom1_pos_fastas_from_Phobius, names = names(Suitom1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suitom1_GPCRs_from_Phobius.fasta")
 write.fasta(Suisub1_pos_fastas_from_Phobius, names = names(Suisub1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suisub1_GPCRs_from_Phobius.fasta")
@@ -686,6 +996,8 @@ write.fasta(Suibr2_pos_fastas_from_Phobius, names = names(Suibr2_pos_fastas_from
 write.fasta(Suibov1_pos_fastas_from_Phobius, names = names(Suibov1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suibov1_GPCRs_from_Phobius.fasta")
 write.fasta(Suiamp1_pos_fastas_from_Phobius, names = names(Suiamp1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiamp1_GPCRs_from_Phobius.fasta")
 write.fasta(Suiame1_pos_fastas_from_Phobius, names = names(Suiame1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suiame1_GPCRs_from_Phobius.fasta")
+write.fasta(Suifus1_pos_fastas_from_Phobius, names = names(Suifus1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Suifus1_GPCRs_from_Phobius.fasta")
+
 #non_Suillus set
 write.fasta(Rhivul1_pos_fastas_from_Phobius, names = names(Rhivul1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhivul1_GPCRs_from_Phobius.fasta")
 write.fasta(Rhitru1_pos_fastas_from_Phobius, names = names(Rhitru1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhitru1_GPCRs_from_Phobius.fasta")
@@ -696,6 +1008,115 @@ write.fasta(Paxin1_pos_fastas_from_Phobius, names = names(Paxin1_pos_fastas_from
 write.fasta(Pilcr1_pos_fastas_from_Phobius, names = names(Pilcr1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pilcr1_GPCRs_from_Phobius.fasta")
 write.fasta(Pismi1_pos_fastas_from_Phobius, names = names(Pismi1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pismi1_GPCRs_from_Phobius.fasta")
 write.fasta(Sclci1_pos_fastas_from_Phobius, names = names(Sclci1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Sclci1_GPCRs_from_Phobius.fasta")
+write.fasta(Cananz1_pos_fastas_from_Phobius, names = names(Cananz1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Cananz1_GPCRs_from_Phobius.fasta")
+write.fasta(Gyrli1_pos_fastas_from_Phobius, names = names(Gyrli1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Gyrli1_GPCRs_from_Phobius.fasta")
+write.fasta(Gaumor1_pos_fastas_from_Phobius, names = names(Gaumor1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Gaumor1_GPCRs_from_Phobius.fasta")
+write.fasta(Hydru2_pos_fastas_from_Phobius, names = names(Hydru2_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Hydru2_GPCRs_from_Phobius.fasta")
+write.fasta(Hyssto1_pos_fastas_from_Phobius, names = names(Hyssto1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Hyssto1_GPCRs_from_Phobius.fasta")
+write.fasta(Lacam2_pos_fastas_from_Phobius, names = names(Lacam2_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Lacam2_GPCRs_from_Phobius.fasta")
+write.fasta(Pisti1_pos_fastas_from_Phobius, names = names(Pisti1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Pisti1_GPCRs_from_Phobius.fasta")
+write.fasta(Rusbre1_pos_fastas_from_Phobius, names = names(Rusbre1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rusbre1_GPCRs_from_Phobius.fasta")
+write.fasta(Ruscom1_pos_fastas_from_Phobius, names = names(Ruscom1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Ruscom1_GPCRs_from_Phobius.fasta")
+write.fasta(Rhisa1_pos_fastas_from_Phobius, names = names(Rhisa1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhisa1_GPCRs_from_Phobius.fasta")
+write.fasta(Rhives1_pos_fastas_from_Phobius, names = names(Rhives1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhives1_GPCRs_from_Phobius.fasta")
+write.fasta(Rhivi1_pos_fastas_from_Phobius, names = names(Rhivi1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Rhivi1_GPCRs_from_Phobius.fasta")
+write.fasta(Theter1_pos_fastas_from_Phobius, names = names(Theter1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Theter1_GPCRs_from_Phobius.fasta")
+write.fasta(Thega1_pos_fastas_from_Phobius, names = names(Thega1_pos_fastas_from_Phobius), open = "w", nbchar = 60, as.string = FALSE, file.out = "Thega1_GPCRs_from_Phobius.fasta")
+
+#run TOPCONS on GPCR lists 
+#http://single.topcons.net///index.php
+#import "all topologies" outputflle, save as a .csv file
+
+#kill those factors
+options(stringsAsFactors = FALSE)
+#import files 
+TOPCONS_Theter1<- read.table("TOPCONS_Theter1_GPCRS.txt", fill = TRUE, header = FALSE)
+
+View(TOPCONS_Theter1)
+#format TOPCONS files
+Theter1.names<- TOPCONS_Theter1[grep(">", TOPCONS_Theter1$V1),]
+Theter1.seq<- TOPCONS_Theter1[ - grep(">", TOPCONS_Theter1$V1),]
+TOPCONS_Theter1<-cbind(Theter1.names, Theter1.seq)
+TOPCONS_Theter1.2<- data.frame(gsub(">", "", TOPCONS_Theter1))
+colnames(TOPCONS_Theter1.2)<- c("name", "seq")
+
+#format the fasta files to match against
+Theter1_fastas<-t(as.data.frame(Theter1_pos_fastas_from_Phobius))
+Theter1_fastas2<- data.frame(cbind(row.names(Theter1_fastas), Theter1_fastas))
+colnames(Theter1_fastas2)<- c("name", "seq")
+
+#rename fastas 
+seq.df<- data.frame(Theter1_fastas2[,2])
+map.key<- data.frame(TOPCONS_Theter1.2[,2])
+#get indices of "M" regions 
+map.list.list<- apply(map.key, 2, function (x) str_locate_all(pattern ='M', x))
+#get starts only
+map.list.list<- map.list.list[[1]]
+map.df<- mapply('[', map.list.list, TRUE, 1)
+
+#itterate over all 
+Theter1_cat_TM_list<- unlist(Map(function(x, y) paste(substring(x, unlist(y), 
+                                                 unlist(y)), collapse=""), seq.df[[1]], map.df))
+
+##re-attach sequence names and format back into fasta files. 
+#get list for fasta headers
+names<- TOPCONS_Theter1.2$name
+
+#rename rows
+Theter1_cat_TM_list<- data.frame(Theter1_cat_TM_list)
+rownames(Theter1_cat_TM_list)<- TOPCONS_Theter1.2$name
+
+#add the carrot back into the row names
+rownames(Theter1_cat_TM_list) <- paste0(">",  rownames(Theter1_cat_TM_list))
+
+#format and print this to a file 
+write.table(Theter1_cat_TM_list, file = "Theter1_cat_TM_list.fasta", col.names=FALSE, quote = FALSE, sep = "\n")
+
+#quick QC check - make sure the pro length is the same as the respective M lists. 
+#str_count(map.key$TOPCONS_Theter1.2...2., "M")
+#nchar(Theter1_cat_TM_list[1,1])
+#nchar(Theter1_cat_TM_list[7,1])
+#looks good. 
+
+#align the outputfiles using 
+
+
+#modify to parse each TM region seperately (so we can align them seprately)
+#step 1, parse non-consecuative numbers into different bins in M_poistion
+
+#first colapse M_position rows into a single row:
+library("tidyr")
+library("dplyr")
+M_position<- data.frame(M_position)
+#concatonate?
+#M_position_colapse<-unite(M_position, new, 1:ncol(M_position), sep=" ", remove = TRUE)
+#works, but is this really what you want? 
+
+Breaks2<- cbind(apply(M_position, 1, function(x) apply(M_position, 2, function (y) c(0, which(diff(x) != 1), length(x)) )))
+#almost . . . it's not giving different brake numbers for the different TMs though. . . 
+
+#re-write to bin entries into diffrent lists
+Breaks3<- cbind(apply(M_position, 1, function(x) apply(M_position, 2, function (x) c(0, which(diff(x) != 1), length(x)) )))
+
+
+View(Breaks2)
+
+sapply(seq(length(Breaks2) - 1), 
+       function(i) Vec[(Breaks2[i] + 1):Breaks2[i+1]])
+
+
+
+Vec<- c(1,2,3,4,7,8,9,10,12,13) 
+
+class(Vec)
+class(M_position_colapse[1,])
+
+Breaks <- c(0, which(diff(Vec) != 1), length(Vec)) 
+
+sapply(seq(length(Breaks) - 1), 
+         function(i) Vec[(Breaks[i] + 1):Breaks[i+1]]) 
+
+
 
 
 
@@ -711,13 +1132,16 @@ Results_t2<- data.frame(cbind(Results_t, names.list))
 Results_Suillus<-data.frame(Results_t2[ grep("Sui", Results_t2[,4],), ])
 Results_Suillus
 
+
 Results_Other<-data.frame(Results_t2[ grep("Sui", Results_t2[,4],invert = TRUE), ])
 Results_Other
+
 
 #make repeating rows
 Results_Suillus_sm<- data.frame(as.numeric(Results_Suillus[,3]))
 Suillus<- cbind(Results_Suillus_sm, rep("a_Suillus", nrow(Results_Suillus_sm)))
 colnames(Suillus)<- c("%", "group")
+
 
 Results_Other_sm<- data.frame(as.numeric(Results_Other[,3]))
 Other_ECM<- cbind(Results_Other_sm, rep("b_Other", nrow(Results_Other_sm)))
@@ -725,10 +1149,8 @@ colnames(Other_ECM)<- c("%", "group")
 
 GPCR_df_for_stats<- data.frame(rbind(Suillus, Other_ECM))
 
-class(GPCR_df_for_stats$X.)
 
 #######START HERE WITH GRAPHS######## 
-######### % SSP's out of total proteins 
 med1= mean(as.numeric(GPCR_df_for_stats$X.) [GPCR_df_for_stats$group == "a_Suillus"])
 med2= mean(as.numeric(GPCR_df_for_stats$X.) [GPCR_df_for_stats$group == "b_Other"])
 par(mar = c(6.5, 8.5, 3, 3.5), mgp = c(6, 2.5, 0))
@@ -1516,9 +1938,9 @@ row.names(GPCR_class_counts_Suillus)<- c("Suivar1",
                                          "Suibov1",
                                          "Suiamp1",
                                          "Suiame1")
-                                 
-                            
-                                       
+
+
+
 
 GPCR_class_counts_Other<- plyr::rbind.fill(Rhivul1_GPCRs_rf,
                                            Rhitru1_GPCRs_rf,
@@ -1540,7 +1962,7 @@ row.names(GPCR_class_counts_Other)<- c("Rhivul1",
                                        "Pilcr1",
                                        "Pismi1",
                                        "Sclci1")
-                                      
+
 
 #replace NAs with zeros
 
@@ -1562,7 +1984,7 @@ Other_mean_Class_D<- round(mean(as.numeric(GPCR_class_counts_Other$Family.Vomero
 #####make waffle plot 
 ##Suillus waffle
 GPCR_dist_Suillus <- c(`Class A`=Suillus_mean_Class_A, `Class B`=Suillus_mean_Class_B, 
-             `Class D`=Suillus_mean_Class_D)
+                       `Class D`=Suillus_mean_Class_D)
 waffle(GPCR_dist_Suillus/1, rows=5, size=0.5, 
        colors=c("#405952", "#5677A1", "#9B9A79"), 
        title="GPCR distrbution Suillus")
@@ -1574,6 +1996,8 @@ waffle(GPCR_dist_Other/1, rows=5, size=0.5,
        colors=c("#405952", "#5677A1", "#9B9A79"), 
        title="GPCR distrbution Other", 
        pad = 4)
+
+
 
 #####make plots to show dist. of data
 #change to numeric
@@ -1624,10 +2048,7 @@ with(GPCR_class_counts_Other_long,
               main = "Other",
               ylim = c(0,70)))
 
-#color pallet 
-#"#5677A1", "#405952", "#9B9A79", "#FED393","#F79552", "#F0502B", "#A82B0E"
-#reduced set
-#"#405952", "#5677A1", "#9B9A79"
+
 
 
 #####stats and figures for Suillus by Host association
@@ -1641,6 +2062,7 @@ Suillus_by_host_association_long <- Suillus_by_host_association_GPCRs %>% group_
   gather(data = Suillus_by_host_association_GPCRs, id, classA, classB, classD)
 
 
+
 #set col names
 colnames(Suillus_by_host_association_long)<- c("species", "host", "class", "counts")
 
@@ -1648,7 +2070,7 @@ colnames(Suillus_by_host_association_long)<- c("species", "host", "class", "coun
 Red_hosts_gpcrs<- Suillus_by_host_association_long[Suillus_by_host_association_long$host == "R",]
 White_hosts_gpcrs<- Suillus_by_host_association_long[Suillus_by_host_association_long$host == "W",]
 Larch_hosts_gpcrs<- Suillus_by_host_association_long[Suillus_by_host_association_long$host == "L",]
-  
+
 Suillus_redmean_Class_A1<-Red_hosts_gpcrs[Red_hosts_gpcrs$class == "classA",]
 Suillus_redmean_Class_A<- round(mean(as.numeric(Suillus_redmean_Class_A1$counts)), 0)
 Suillus_redmean_Class_B1<-Red_hosts_gpcrs[Red_hosts_gpcrs$class == "classB",]
@@ -1658,7 +2080,7 @@ Suillus_redmean_Class_D<- round(mean(as.numeric(GPCR_class_counts_Suillus$Family
 
 
 Suillus_host_dist_red <- c(`Class A`=Suillus_redmean_Class_A, `Class B`=Suillus_redmean_Class_B, 
-                       `Class D`=Suillus_redmean_Class_D)
+                           `Class D`=Suillus_redmean_Class_D)
 
 waffle(Suillus_host_dist_red/1, rows=5, size=0.5, 
        colors=c("#405952", "#5677A1", "#9B9A79"), 
@@ -1775,8 +2197,6 @@ GPCR_totals$host_sp<- row.names(GPCR_totals)
 GPCR_totals_long <- GPCR_totals[rep(seq(nrow(GPCR_totals)), GPCR_totals$counts),]
 GPCR_table<- table(GPCR_totals_long)
 
-barplot(GPCR_table, main = "mean GPCRs by host", col = c("#F0502B", "#F79552", "#A82B0E")) 
-
 
 #lets make this a stacked barplot by subtype 
 red_mean<- data.frame(round(colMeans(red_set[2:4]), 0))
@@ -1796,4 +2216,107 @@ barplot(stacked_set, main = "mean GPCRs by host",
         font.axis=2, 
         ylab = "n GPCRs", 
         ylim = c(0,80))
+
+
+
+
+
+
+
+
+###### stats ######
+#####ANOVA 
+
+#type 2 ANOVA for Suillus vs. Other ECM 
+
+#format input files
+GPCR_class_counts_Other_long$Group<- rep("O", nrow(GPCR_class_counts_Other_long))
+GPCR_class_counts_Suillus_long$Group<- rep("S", nrow(GPCR_class_counts_Suillus_long))
+
+#bind them
+class_counts_add_df<- rbind(GPCR_class_counts_Other_long, GPCR_class_counts_Suillus_long)
+
+#make model
+model.for.t2<-lm(class_counts_add_df$value ~ class_counts_add_df$treatment * class_counts_add_df$Group)
+
+model.for.t3<- Anova(model.for.t2, type=2)
+model.for.t3
+summary(model.for.t3)
+#significant 
+
+#define interaction term
+class_counts_add_df$Group_GPCR_interaction <- as.factor(interaction(class_counts_add_df$treatment, class_counts_add_df$Group))
+
+#re-run model with interaction term
+model.for.t4<- lm(class_counts_add_df$value ~ class_counts_add_df$Group_GPCR_interaction)
+
+#take a look - lines in common mean not significantly different 
+sidelines(pairwise(model.for.t4, class_counts_add_df$Group_GPCR_interaction,confidence = 0.95, type = "hsd"))
+
+#full result with hsd -- note you can't get p-vals with hsd though with cfcdae. 
+pairwise(model.for.t4, class_counts_add_df$Group_GPCR_interaction,confidence = 0.95, type = "hsd")
+
+#run model for multiple t tests so that you can get p-vals
+pairs_out<- pairwise(model.for.t4, class_counts_add_df$Group_GPCR_interaction,confidence = 0.95, type = "regwr")
+
+sidelines(pairs_out)
+#terpenes and Other are dignificantly different 
+
+#get p-value using mulitple t tests and holm adjustment for multiple comparisons. 
+p_vals<-with(class_counts_add_df, pairwise.t.test(class_counts_add_df$value,class_counts_add_df$Group_GPCR_interaction,
+                                                               p.adjust.method="holm"))
+
+p_vals
+
+
+
+
+
+#type 2 ANOVA for Suillus by host association 
+#subset df for anova
+Suillus_by_host_association_long2<- Suillus_by_host_association_long[c(Suillus_by_host_association_long$host == "W" | Suillus_by_host_association_long$host == "R" | Suillus_by_host_association_long$host == "L"),]
+
+#get means for each (for graph)
+red_mean
+sum(red_mean)
+
+white_mean
+sum(white_mean)
+
+larch_mean
+sum(larch_mean)
+
+library("car")
+#make model
+model.for.t2<-lm(Suillus_by_host_association_long2$counts ~ Suillus_by_host_association_long2$class * Suillus_by_host_association_long2$host)
+
+model.for.t3<- Anova(model.for.t2, type=2)
+
+summary(model.for.t3)
+#significant 
+
+#run post hoc tests (multiple t test)
+library("cfcdae")
+
+#define interaction term
+Suillus_by_host_association_long2$Group_GPCR_interaction <- as.factor(interaction(Suillus_by_host_association_long2$class, Suillus_by_host_association_long2$host))
+
+#re-run model with interaction term
+model.for.t4<- lm(Suillus_by_host_association_long2$counts ~ Suillus_by_host_association_long2$Group_GPCR_interaction)
+
+#take a look - lines in common mean not significantly different 
+sidelines(pairwise(model.for.t4, Suillus_by_host_association_long2$Group_GPCR_interaction,confidence = 0.95, type = "hsd"))
+
+#full result with hsd -- note you can't get p-vals with hsd though with cfcdae. 
+pairwise(model.for.t4, Suillus_by_host_association_long2$Group_GPCR_interaction,confidence = 0.95, type = "hsd")
+
+#run model for multiple t tests so that you can get p-vals
+pairs_out<- pairwise(model.for.t4, Suillus_by_host_association_long2$Group_GPCR_interaction,confidence = 0.95, type = "regwr")
+
+sidelines(pairs_out)
+#terpenes and Other are dignificantly different 
+
+#get p-value using mulitple t tests and holm adjustment for multiple comparisons. 
+p_vals<-with(Suillus_by_host_association_long2, pairwise.t.test(Suillus_by_host_association_long2$counts,Suillus_by_host_association_long2$Group_GPCR_interaction,
+                                                         p.adjust.method="holm"))
 
